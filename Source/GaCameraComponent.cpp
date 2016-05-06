@@ -28,7 +28,6 @@ void GaCameraComponent::StaticRegisterClass()
 	{
 		new ReField( "CameraTarget_",		&GaCameraComponent::CameraTarget_ ),
 		new ReField( "CameraRotation_",		&GaCameraComponent::CameraRotation_ ),
-		new ReField( "CameraWalk_",			&GaCameraComponent::CameraWalk_ ),
 		new ReField( "CameraDistance_",		&GaCameraComponent::CameraDistance_ ),
 		new ReField( "CameraZoom_",			&GaCameraComponent::CameraZoom_ ),
 		new ReField( "MoveFast_",			&GaCameraComponent::MoveFast_ ),
@@ -50,13 +49,13 @@ GaCameraComponent::GaCameraComponent()
 {
 	CameraState_ = STATE_IDLE;
 	NextCameraState_ = STATE_IDLE;
-	CameraDistance_ = 1.0f;
+	CameraDistance_ = 50.0f;
 	CameraZoom_ = 0.0f;
 	MoveFast_ = BcFalse;
+	CameraRotation_ = MaVec3d( BcPI * 0.5f, BcPI, 0.0f );
 #if PLATFORM_ANDROID
 	CameraRotation_ = MaVec3d( 0.1f, 0.0f, 0.0f );
 #endif
-	CameraWalk_ = MaVec3d( 0.0f, 0.0f, 0.0f );
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -115,10 +114,7 @@ void GaCameraComponent::preUpdate( BcF32 Tick )
 	CameraDistance_ = BcClamp( CameraDistance_, 1.0f, 4096.0f );
 	CameraZoom_ = 0.0f;
 
-	BcF32 WalkSpeed = MoveFast_ ? 32.0f : 8.0f;
 	MaMat4d CameraRotationMatrix = getCameraRotationMatrix();
-	MaVec3d OffsetVector = -CameraWalk_ * CameraRotationMatrix;
-	CameraTarget_ += OffsetVector * Tick * WalkSpeed;
 
 
 	MaVec3d ViewDistance = MaVec3d( 0.0f, 0.0f, CameraDistance_ );
@@ -297,22 +293,6 @@ eEvtReturn GaCameraComponent::onKeyDown( EvtID ID, const EvtBaseEvent& Event )
 	case OsEventInputKeyboard::KEYCODE_DOWN:
 		CameraRotationDelta_.x(  1.0f );
 		break;
-	case 'W':
-	case 'w':
-		CameraWalk_.z( 1.0f );
-		break;
-	case 'S':
-	case 's':
-		CameraWalk_.z( -1.0f );
-		break;
-	case 'A':
-	case 'a':
-		CameraWalk_.x( -1.0f );
-		break;
-	case 'D':
-	case 'd':
-		CameraWalk_.x( 1.0f );
-		break;
 	case OsEventInputKeyboard::KEYCODE_SHIFT:
 		MoveFast_ = BcTrue;
 		break;
@@ -339,18 +319,6 @@ eEvtReturn GaCameraComponent::onKeyUp( EvtID ID, const EvtBaseEvent& Event )
 	case OsEventInputKeyboard::KEYCODE_UP:
 	case OsEventInputKeyboard::KEYCODE_DOWN:
 		CameraRotationDelta_.x( 0.0f );
-		break;
-	case 'W':
-	case 'w':
-	case 'S':
-	case 's':
-		CameraWalk_.z( 0.0f );
-		break;
-	case 'A':
-	case 'a':
-	case 'D':
-	case 'd':
-		CameraWalk_.x( 0.0f );
 		break;
 	case OsEventInputKeyboard::KEYCODE_F4:
 		SelectedRenderer_ = ( SelectedRenderer_ + 1 ) % Renderers_.size();

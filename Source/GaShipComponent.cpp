@@ -1,5 +1,8 @@
 #include "GaShipComponent.h"
 #include "System/Scene/ScnEntity.h"
+#include "System/Os/OsCore.h"
+#include "System/Os/OsEvents.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // Ctor
@@ -10,6 +13,7 @@ GaShipProcessor::GaShipProcessor():
 			ScnComponentPriority::DEFAULT_UPDATE,
 			std::bind( &GaShipProcessor::updateShips, this, std::placeholders::_1 ) ) } )
 {
+	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,7 +42,11 @@ void GaShipProcessor::updateShips( const ScnComponentList& Components )
 // initialise
 void GaShipProcessor::initialise()
 {
-
+	OsCore::pImpl()->subscribe(osEVT_INPUT_KEYDOWN, this,
+		[this] (EvtID ID, const EvtBaseEvent& InEvent) {
+			const auto &Event = InEvent.get<OsEventInputKeyboard>();
+			return evtRET_PASS;
+		});
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -67,6 +75,7 @@ void GaShipComponent::StaticRegisterClass()
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipComponent::GaShipComponent()
+	: InstructionSet_(0)
 {
 }
 
