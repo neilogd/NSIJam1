@@ -1,4 +1,5 @@
 #include "GaShipComponent.h"
+#include "System/Scene/ScnEntity.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Ctor
@@ -79,11 +80,13 @@ GaShipComponent::~GaShipComponent()
 // onAttach
 void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 {
+	Super::onAttach( Parent );
 }
 
 //////////////////////////////////////////////////////////////////////////
 // onDetach
 void GaShipComponent::onDetach( ScnEntityWeakRef Parent )
 {
+	Super::onDetach( Parent );
 }
 

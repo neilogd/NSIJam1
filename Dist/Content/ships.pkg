@@ -1,0 +1,40 @@
+{
+	"resources" : [
+		{
+			"name"		:		"PlayerShip",
+			"type"		:		"ScnEntity",
+
+			"components" : [
+				{
+					"$Class"				: "GaShipComponent"
+				},
+
+				{
+					"$Class"				: "ScnModelComponent",
+					"model"					: "$(ScnModel:models.sphere)",
+					"islit"					: true,
+					"scale"					: "1.0, 1.0, 1.0"
+				}
+			]
+		},
+
+		{
+			"name"		:		"EnemyShipA",
+			"type"		:		"ScnEntity",
+
+			"components" : [
+				{
+					"$Class"				: "GaShipComponent"
+				},
+
+				{
+					"$Class"				: "ScnModelComponent",
+					"model"					: "$(ScnModel:models.cube)",
+					"islit"					: true,
+					"scale"					: "1.0, 1.0, 1.0"
+				}
+			]
+		}
+	]
+}
+ 
