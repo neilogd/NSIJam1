@@ -84,4 +84,9 @@ private:
 	int InstructionSet_;
 	int CurrentStep_;
 	Instruction CurrentInstructions_;
+
+	float Speed_;
+	float ZSpeed_;
+
+	float TimeOffset_;
 };
