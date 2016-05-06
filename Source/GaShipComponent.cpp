@@ -1,5 +1,6 @@
 #include "GaShipComponent.h"
 #include "System/Scene/ScnEntity.h"
+#include "System/Scene/Rendering/ScnModel.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Ctor
@@ -57,6 +58,10 @@ void GaShipComponent::StaticRegisterClass()
 	ReField* Fields[] = 
 	{
 		new ReField( "IsPlayer_", &GaShipComponent::IsPlayer_, bcRFF_IMPORTER ),
+
+		new ReField( "Model_", &GaShipComponent::Model_, bcRFF_TRANSIENT ),
+		new ReField( "GunNodeIndices_", &GaShipComponent::GunNodeIndices_, bcRFF_TRANSIENT ),
+		new ReField( "EngineNodeIndices_", &GaShipComponent::EngineNodeIndices_, bcRFF_TRANSIENT ),
 	};
 	
 	using namespace std::placeholders;
@@ -81,6 +86,32 @@ GaShipComponent::~GaShipComponent()
 void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 {
 	Super::onAttach( Parent );
+
+	Model_ = Parent->getComponentByType< ScnModelComponent >();
+	if( Model_ )
+	{
+		// Find all gun nodes.
+		BcU32 Idx = 0;
+		BcU32 GunNodeIdx = BcErrorCode;
+		while( ( GunNodeIdx = Model_->findNodeIndexByName( BcName( "Gun", Idx ) ) ) != BcErrorCode )
+		{
+			GunNodeIndices_.push_back( GunNodeIdx );
+			++Idx;
+		}
+
+		// Find all engine nodes.
+		Idx = 0;
+		BcU32 EngineNodeIdx = BcErrorCode;
+		while( ( EngineNodeIdx = Model_->findNodeIndexByName( BcName( "Engine", Idx ) ) ) != BcErrorCode )
+		{
+			EngineNodeIndices_.push_back( EngineNodeIdx );
+			++Idx;
+		}
+	}
+	else
+	{
+		PSY_LOG( "GaShipComponent: Unable to find a model component on entity \"%s\"", Parent->getFullName().c_str() );
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

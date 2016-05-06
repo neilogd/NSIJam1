@@ -43,4 +43,8 @@ private:
 	friend class GaShipProcessor;
 
 	BcBool IsPlayer_ = BcFalse;
+
+	class ScnModelComponent* Model_ = nullptr;
+	std::vector< BcU32 > GunNodeIndices_;
+	std::vector< BcU32 > EngineNodeIndices_;
 };
