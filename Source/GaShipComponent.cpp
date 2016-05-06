@@ -27,6 +27,8 @@ GaShipProcessor::GaShipProcessor():
 	InstructionSets_[0].push_back(WaveInstruction(16, InstructionState::SWITCH_ON, Instruction::MOVE_UP));
 	InstructionSets_[0].push_back(WaveInstruction(16, InstructionState::SWITCH_ON, Instruction::MOVE_RIGHT));
 	InstructionSets_[0].push_back(WaveInstruction(19, InstructionState::SWITCH_OFF, Instruction::MOVE_RIGHT));
+
+	InWave_ = BcTrue;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -51,8 +53,24 @@ void GaShipProcessor::updateShips( const ScnComponentList& Components )
 		int Set = ShipComponent->InstructionSet_;
 		int Step = ShipComponent->CurrentStep_;
 		// Update AI Ships setting. This will currently eventually throw an error
-		// After about 12 seconds
-		if (ShipComponent->IsPlayer_ == BcFalse) {
+		if (ShipComponent->IsPlayer_) 
+		{
+			while (NewInstructions_.size() > ShipComponent->CurrentStep_) {
+				NewInstructions_[ShipComponent->CurrentStep_].Offset_ = ShipComponent->TimeOffset_;
+				if (NewInstructions_[ShipComponent->CurrentStep_].State_ == InstructionState::SWITCH_ON)
+				{
+					ShipComponent->CurrentInstructions_ |= NewInstructions_[ShipComponent->CurrentStep_].Instruction_;
+				}
+				else
+				{
+					Instruction inverse = Instruction::ALL ^ NewInstructions_[ShipComponent->CurrentStep_].Instruction_;
+					ShipComponent->CurrentInstructions_ &= inverse;
+				}
+				ShipComponent->CurrentStep_++;
+			}
+		}
+		else
+		{
 			ShipComponent->TimeOffset_ += dt;
 			while (InstructionSets_[Set][Step].Offset_ < ShipComponent->TimeOffset_) {
 				if (InstructionSets_[Set][Step].State_ == InstructionState::SWITCH_ON)
@@ -68,7 +86,7 @@ void GaShipProcessor::updateShips( const ScnComponentList& Components )
 				if (ShipComponent->CurrentStep_ == InstructionSets_[Set].size())
 				{ 
 					ShipComponent->CurrentStep_ = 0;
-					ShipComponent->TimeOffset_ = -dt;
+					ShipComponent->TimeOffset_ = 2;
 					ShipComponent->CurrentInstructions_ = Instruction::NONE;
 				}
 				Step = ShipComponent->CurrentStep_;
@@ -103,8 +121,75 @@ void GaShipProcessor::initialise()
 	OsCore::pImpl()->subscribe(osEVT_INPUT_KEYDOWN, this,
 		[this] (EvtID ID, const EvtBaseEvent& InEvent) {
 			const auto &Event = InEvent.get<OsEventInputKeyboard>();
+			if (this->InWave_) {
+				Instruction instr = Instruction::NONE;
+				switch (Event.AsciiCode_)
+				{
+				case 'a':
+				case 'A':
+					instr = Instruction::MOVE_LEFT;
+					break;
+				case 'd':
+				case 'D':
+					instr = Instruction::MOVE_RIGHT;
+					break;
+				case 'w':
+				case 'W':
+					instr = Instruction::MOVE_UP;
+					break;
+				case 's':
+				case 'S':
+					instr = Instruction::MOVE_DOWN;
+					break;
+				case ' ':
+					instr = Instruction::SHOOT;
+					break;
+
+				default:
+					break;
+				}
+				if (instr != Instruction::NONE) {
+					this->NewInstructions_.push_back(WaveInstruction(-0.0f, InstructionState::SWITCH_ON, instr));
+					PSY_LOG("New instruction");
+				}
+			}
 			return evtRET_PASS;
 		});
+	OsCore::pImpl()->subscribe(osEVT_INPUT_KEYUP, this,
+		[this](EvtID ID, const EvtBaseEvent& InEvent) {
+		const auto &Event = InEvent.get<OsEventInputKeyboard>();
+		if (this->InWave_) {
+			Instruction instr = Instruction::NONE;
+			switch (Event.AsciiCode_)
+			{
+			case 'a':
+			case 'A':
+				instr = Instruction::MOVE_LEFT;
+				break;
+			case 'd':
+			case 'D':
+				instr = Instruction::MOVE_RIGHT;
+				break;
+			case 'w':
+			case 'W':
+				instr = Instruction::MOVE_UP;
+				break;
+			case 's':
+			case 'S':
+				instr = Instruction::MOVE_DOWN;
+				break;
+			case ' ':
+				instr = Instruction::SHOOT;
+				break;
+
+			default:
+				break;
+			}
+			if (instr != Instruction::NONE)
+				this->NewInstructions_.push_back(WaveInstruction(-0.0f, InstructionState::SWITCH_OFF, instr));
+		}
+		return evtRET_PASS;
+	});
 }
 
 //////////////////////////////////////////////////////////////////////////

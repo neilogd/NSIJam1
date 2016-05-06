@@ -61,6 +61,8 @@ protected:
 
 private:
 	std::vector<std::vector<WaveInstruction>> InstructionSets_;
+	std::vector<WaveInstruction> NewInstructions_;
+	BcBool InWave_;
 };
 
 //////////////////////////////////////////////////////////////////////////
