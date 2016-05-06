@@ -16,12 +16,20 @@ enum class InstructionState
 
 enum class Instruction 
 {
-	MOVE_LEFT,
-	MOVE_RIGHT,
-	MOVE_UP,
-	MOVE_DOWN,
-	SHOOT
+	NONE			= 0x0000,
+	MOVE_LEFT		= 0x0001,
+	MOVE_RIGHT		= 0x0002,
+	MOVE_UP			= 0x0004,
+	MOVE_DOWN		= 0x0008,
+	SHOOT			= 0x0010,
+
+
+	ALL				= 0xFFFF
 };
+
+DEFINE_ENUM_CLASS_FLAG_OPERATOR(Instruction, |);
+DEFINE_ENUM_CLASS_FLAG_OPERATOR(Instruction, &);
+DEFINE_ENUM_CLASS_FLAG_OPERATOR(Instruction, ^);
 
 class WaveInstruction 
 {
@@ -74,4 +82,6 @@ private:
 
 	BcBool IsPlayer_ = BcFalse;
 	int InstructionSet_;
+	int CurrentStep_;
+	Instruction CurrentInstructions_;
 };

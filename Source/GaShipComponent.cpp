@@ -13,7 +13,15 @@ GaShipProcessor::GaShipProcessor():
 			ScnComponentPriority::DEFAULT_UPDATE,
 			std::bind( &GaShipProcessor::updateShips, this, std::placeholders::_1 ) ) } )
 {
-	
+	InstructionSets_.push_back(std::vector<WaveInstruction>());
+	InstructionSets_[0].push_back(WaveInstruction(0, InstructionState::SWITCH_ON, Instruction::MOVE_LEFT));
+	InstructionSets_[0].push_back(WaveInstruction(3, InstructionState::SWITCH_OFF, Instruction::MOVE_LEFT));
+	InstructionSets_[0].push_back(WaveInstruction(4, InstructionState::SWITCH_ON, Instruction::MOVE_RIGHT));
+	InstructionSets_[0].push_back(WaveInstruction(7, InstructionState::SWITCH_OFF, Instruction::MOVE_RIGHT));
+	InstructionSets_[0].push_back(WaveInstruction(8, InstructionState::SWITCH_ON, Instruction::MOVE_UP));
+	InstructionSets_[0].push_back(WaveInstruction(11, InstructionState::SWITCH_OFF, Instruction::MOVE_UP));
+	InstructionSets_[0].push_back(WaveInstruction(12, InstructionState::SWITCH_ON, Instruction::MOVE_DOWN));
+	InstructionSets_[0].push_back(WaveInstruction(15, InstructionState::SWITCH_OFF, Instruction::MOVE_DOWN));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,15 +34,32 @@ GaShipProcessor::~GaShipProcessor()
 // updateShips
 void GaShipProcessor::updateShips( const ScnComponentList& Components )
 {
+	static float Time = 0.0f;
+	Time += 1/60.0f;
 	// Iterate over all the ships.
 	for( BcU32 Idx = 0; Idx < Components.size(); ++Idx )
 	{
 		auto Component = Components[ Idx ];
 		BcAssert( Component->isTypeOf< GaShipComponent >() );
 		auto* ShipComponent = static_cast< GaShipComponent* >( Component.get() );
-
+		int Set = ShipComponent->InstructionSet_;
+		int Step = ShipComponent->CurrentStep_;
 		// Individual ship updates here?
-		BcUnusedVar( ShipComponent );
+		if (ShipComponent->IsPlayer_ == BcFalse) {
+			if (InstructionSets_[Set][Step].Offset_ > Time) {
+				if (InstructionSets_[Set][Step].State_ == InstructionState::SWITCH_ON)
+				{
+					ShipComponent->CurrentInstructions_ |= InstructionSets_[Set][Step].Instruction_;
+				}
+				else
+				{
+					Instruction inverse = Instruction::ALL ^ InstructionSets_[Set][Step].Instruction_;
+					ShipComponent->CurrentInstructions_ &= inverse;
+				}
+			}
+		}
+		
+
 	}
 }
 
@@ -75,7 +100,9 @@ void GaShipComponent::StaticRegisterClass()
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipComponent::GaShipComponent()
-	: InstructionSet_(0)
+	: InstructionSet_(0),
+	CurrentInstructions_(Instruction::NONE),
+	CurrentStep_(0)
 {
 }
 
