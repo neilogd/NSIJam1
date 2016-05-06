@@ -89,4 +89,9 @@ private:
 	float ZSpeed_;
 
 	float TimeOffset_;
-};
+
+	class ScnModelComponent* Model_ = nullptr;
+	std::vector< BcU32 > GunNodeIndices_;
+	std::vector< BcU32 > EngineNodeIndices_;
+
+	};
