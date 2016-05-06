@@ -61,7 +61,7 @@
 		{
 			"type"		: "ScnModel",
 			"name"		: "skysphere",
-			"source"	: "Content/Source/skysphere.obj",
+			"source"	: "Content/Source/skysphere.fbx",
 			"materials": [
 				{
 					"regex" : "(.*)", 

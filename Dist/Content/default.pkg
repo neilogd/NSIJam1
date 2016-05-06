@@ -25,6 +25,10 @@
 				},
 
 				{
+					"$Class"				: "GaGameComponent"
+				},
+
+				{
 					"name"		:		"CameraEntity",
 					"$Class"		:	"ScnEntity",
 

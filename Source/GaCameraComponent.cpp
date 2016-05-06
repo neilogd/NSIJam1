@@ -137,7 +137,7 @@ void GaCameraComponent::preUpdate( BcF32 Tick )
 	// clear event.
 	BcMemZero( &LastMouseEvent_, sizeof( LastMouseEvent_ ) );
 
-	if ( ImGui::Begin( "Test Menu" ) )
+	if ( ImGui::Begin( "Game Debug Menu" ) )
 	{
 		ImGui::BeginGroup();
 
