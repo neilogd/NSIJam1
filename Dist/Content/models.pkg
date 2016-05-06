@@ -1,0 +1,171 @@
+{
+	"resources" : [
+		{
+			"type"		: "ScnModel",
+			"name"		: "sphere",
+			"source"	: "Content/Source/sphere.fbx",
+			"materials": [
+				{
+					"regex" : "(.*)", 
+					"templatematerial" : {
+						"$Class"		: "ScnMaterialImport",
+						"shader"		: "$(ScnShader:shaders.textured_normal_mapped)",
+
+						"renderstate" : {
+							"blendstate" : {
+								"rendertarget" : [
+									{
+										"enable" : false
+									}
+								]
+							},
+
+							"depthstencilstate" : {
+								"depthtestenable" : true,
+								"depthwriteenable" : true,
+								"depthfunc" : "lessequal",
+								"stencilenable" : false
+							},
+
+							"rasteriserstate" : {
+								"fillmode" : "solid",
+								"cullmode" : "ccw",
+								"depthclipenable" : true,
+								"antialiasedlineenable" : true
+							}
+						},
+						"automaticuniformblocks" : [
+							"ScnShaderMaterialUniformBlockData"
+						]
+					}
+				}
+			],
+
+			"defaulttextures" : {
+				"aDiffuseTex" : "$(ScnTexture:textures.white)",
+				"aNormalTex" : "$(ScnTexture:textures.normal)",
+				"aSpecularTex" : "$(ScnTexture:textures.black)",
+				"aOpacityTex" : "$(ScnTexture:textures.white)",
+				"aReflectionTex" : "$(ScnTexture:cubemap_textures.cubemap)"
+			},
+
+			"vertexformat" : {
+				"position" : "FLOAT32",
+				"texcoord0" : "FLOAT32",
+				"normal" : "FLOAT32",
+				"binormal" : "FLOAT32",
+				"tangent" : "FLOAT32"
+			}
+		},
+
+		{
+			"type"		: "ScnModel",
+			"name"		: "skysphere",
+			"source"	: "Content/Source/skysphere.obj",
+			"materials": [
+				{
+					"regex" : "(.*)", 
+					"templatematerial" : {
+						"$Class"		: "ScnMaterialImport",
+						"shader"		: "$(ScnShader:shaders.skysphere)",
+
+						"renderstate" : {
+							"blendstate" : {
+								"rendertarget" : [
+									{
+										"enable" : false
+									}
+								]
+							},
+
+							"depthstencilstate" : {
+								"depthtestenable" : true,
+								"depthwriteenable" : false,
+								"depthfunc" : "lessequal",
+								"stencilenable" : false
+							},
+
+							"rasteriserstate" : {
+								"fillmode" : "solid",
+								"cullmode" : "none",
+								"depthclipenable" : true,
+								"antialiasedlineenable" : true
+							}
+						}
+					}
+				}
+			],
+
+			"defaulttextures" : {
+				"aReflectionTex" : "$(ScnTexture:cubemap_textures.cubemap)"
+			},
+
+			"vertexformat" : {
+				"position" : "FLOAT32",
+				"texcoord0" : "FLOAT32",
+				"normal" : "FLOAT32",
+				"binormal" : "FLOAT32",
+				"tangent" : "FLOAT32"
+			}
+		},
+
+		{
+			"type"		: "ScnModel",
+			"name"		: "cube",
+			"source"	: "Content/Source/cube.fbx",
+			"materials": [
+				{
+					"regex" : "(.*)", 
+					"templatematerial" : {
+						"$Class"		: "ScnMaterialImport",
+						"shader"		: "$(ScnShader:shaders.textured_normal_mapped)",
+
+						"renderstate" : {
+							"blendstate" : {
+								"rendertarget" : [
+									{
+										"enable" : false
+									}
+								]
+							},
+
+							"depthstencilstate" : {
+								"depthtestenable" : true,
+								"depthwriteenable" : true,
+								"depthfunc" : "lessequal",
+								"stencilenable" : false
+							},
+
+							"rasteriserstate" : {
+								"fillmode" : "solid",
+								"cullmode" : "ccw",
+								"depthclipenable" : true,
+								"antialiasedlineenable" : true
+							}
+						},
+						"automaticuniformblocks" : [
+							"ScnShaderMaterialUniformBlockData"
+						]
+					}
+				}
+			],
+
+			"defaulttextures" : {
+				"aDiffuseTex" : "$(ScnTexture:textures.white)",
+				"aNormalTex" : "$(ScnTexture:textures.normal)",
+				"aSpecularTex" : "$(ScnTexture:textures.black)",
+				"aOpacityTex" : "$(ScnTexture:textures.white)",
+				"aReflectionTex" : "$(ScnTexture:cubemap_textures.cubemap)"
+			},
+
+			"vertexformat" : {
+				"position" : "FLOAT32",
+				"texcoord0" : "FLOAT32",
+				"normal" : "FLOAT32",
+				"binormal" : "FLOAT32",
+				"tangent" : "FLOAT32"
+			}
+		}
+	]
+}
+ 

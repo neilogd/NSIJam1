@@ -1,0 +1,107 @@
+{
+	"resources" : [
+		{
+			"type"			: "CsRedirector",
+			"name"			: "default",
+			"target"		: "$(ScnShader:shader_default.default)"
+		},
+
+		{
+			"type"			: "CsRedirector",
+			"name"			: "textured",
+			"target"		: "$(ScnShader:shader_textured.textured)"
+		},
+
+		{
+			"type"			: "CsRedirector",
+			"name"			: "textured_mask",
+			"target"		: "$(ScnShader:shader_textured.textured_mask)"
+		},
+
+		{
+			"type"			: "CsRedirector",
+			"name"			: "textured_normal_mapped",
+			"target"		: "$(ScnShader:shader_textured_normal_mapped.textured_normal_mapped)"
+		},
+
+		{
+			"type"			: "CsRedirector",
+			"name"			: "textured_normal_mapped_mask",
+			"target"		: "$(ScnShader:shader_textured_normal_mapped.textured_normal_mapped_mask)"
+		},
+
+
+		{
+			"type"			: "ScnShader",
+			"name"			: "skysphere",
+			"sources" 		: {
+				"GLSL_330" : "Content/Engine/skysphere.psf",
+				"GLSL_ES_100" : "Content/Engine/skysphere.psf"
+			},
+
+			"@(android)" : {
+				"sources" 		: {
+					"GLSL_ES_100" : "Content/Engine/skysphere.psf"
+				}
+			},
+
+			"@(html5)" : {
+				"sources" 		: {
+					"GLSL_ES_100" : "Content/Engine/skysphere.psf"
+				}
+			},
+
+			"includepermutations" : [
+				"RENDER_FORWARD",
+				"RENDER_DEFERRED",
+				"PASS_OPAQUE",
+				"LIGHTING_NONE"
+			],
+
+			"excludepermutations" : [
+				"MESH_STATIC_2D",
+				"MESH_SKINNED_3D",
+				"MESH_PARTICLE_3D"
+			],
+
+			"entrypoints"		: {
+				"vertex" : 		"vertexMain",
+				"pixel" :		"pixelMain"
+			}
+		},
+
+		{
+			"type"			: "ScnShader",
+			"name"			: "fullscreen",
+			"sources" 		: {
+				"GLSL_330" : "Content/Engine/fullscreen.psf",
+				"GLSL_ES_100" : "Content/Engine/fullscreen.psf"
+			},
+
+			"@(android)" : {
+				"sources" 		: {
+					"GLSL_ES_100" : "Content/Engine/fullscreen.psf"
+				}
+			},
+
+			"@(html5)" : {
+				"sources" 		: {
+					"GLSL_ES_100" : "Content/Engine/fullscreen.psf"
+				}
+			},
+
+			"includepermutations" : [
+				"MESH_STATIC_2D",
+				"RENDER_POST_PROCESS",
+				"PASS_OPAQUE",
+				"LIGHTING_NONE"
+			],
+
+			"entrypoints"		: {
+				"vertex" : 		"vertexMain",
+				"pixel" :		"pixelMain"
+			}
+		}
+	]
+}
+

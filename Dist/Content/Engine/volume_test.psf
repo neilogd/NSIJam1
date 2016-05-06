@@ -1,0 +1,176 @@
+#include <Psybrus.psh>
+
+//////////////////////////////////////////////////////////////////////////
+// Vertex shader
+#if VERTEX_SHADER
+
+VS_IN_BEGIN
+	DECLARE_IN( float4, InPosition_, POSITION );
+	DECLARE_IN( float4, InNormal_, NORMAL );
+	DECLARE_IN( float4, InTexCoord_, TEXCOORD0 );
+	DECLARE_IN( float4, InColour_, COLOR0 );
+VS_IN_END
+
+VS_OUT_BEGIN
+	DECLARE_OUT( float3, VsRayPos, TEXCOORD0 );
+	DECLARE_OUT( float3, VsRayDir, TEXCOORD1 );
+VS_OUT_END
+
+VS_MAIN( vertexMain )
+{
+	VS_ENTER;
+	OUT_POSITION = IN( InPosition_ );
+
+	float2 q = IN( InTexCoord_ ).xy;
+	float2 p = -1.0+2.0*q;
+		 
+	// ray near + far
+	float4 rn = mul( InverseProjectionTransform_, float4( p, 0.0, 1.0 ) );
+	float4 rf = mul( InverseProjectionTransform_, float4( p, 1.0, 1.0 ) );
+
+	rn *= 0.0;
+	rf *= 10000.0;
+
+	rn = mul( InverseViewTransform_, float4( rn.xyz, 1.0 ) );
+	rf = mul( InverseViewTransform_, float4( rf.xyz, 1.0 ) );
+
+	OUT( VsRayPos ) = rn.xyz;
+	OUT( VsRayDir ) = normalize( rf.xyz - rn.xyz );
+	VS_EXIT;
+}
+
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+// Pixel shader
+#if PIXEL_SHADER
+
+PS_IN_BEGIN
+	DECLARE_IN( float3, VsRayPos, TEXCOORD0 );
+	DECLARE_IN( float3, VsRayDir, TEXCOORD1 );
+PS_IN_END
+#include <PsybrusOutput.psh>
+
+//////////////////////////////////////////////////////////////////////////
+// sdSphere
+float sdSphere( float3 Position, float Radius )
+{
+	return length( Position ) - Radius;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// sdBox
+float sdBox( float3 Position, float3 Bounds )
+{
+  float3 Distance = abs( Position ) - Bounds;
+  return min( max( Distance.x, max( Distance.y, Distance.z ) ), 0.0 ) + length( max( Distance, 0.0 ) );
+}
+
+//////////////////////////////////////////////////////////////////////////
+// sdCloud
+float cosNoise( float3 Position )
+{
+	float Ret = 0.0;
+	float Mul = 1.0;
+	float Freq = 0.2;
+	for( int Idx = 0; Idx < 4; ++Idx )
+	{
+		Ret += ( cos( Position.x * Freq ) * Mul + sin( Position.y * Freq ) * Mul + cos( ( Position.z + 0.2 ) * Freq ) * Mul ) / 3.0;
+		Mul *= 0.5;
+		Freq *= 2.0;
+	}
+	return Ret;
+}
+
+float sdCloud( float3 Position )
+{
+	return cosNoise( Position ); 
+}
+
+//////////////////////////////////////////////////////////////////////////
+// map
+float map( float3 Position )
+{
+	return sdBox( Position, float3( 8.0, 1.0, 8.0 ) );
+}
+
+//////////////////////////////////////////////////////////////////////////
+// rayMarch
+float2 rayMarch( float3 RayPos, float3 RayDir )
+{
+	float Precision = 0.001;
+	float Tmin = 1.0;
+	float Tmax = 1000.0;
+	int MaxSteps = 128;
+	float T = Tmin;
+	float Dist = -1.0;
+	for( int Idx = 0; Idx < MaxSteps; ++Idx )
+	{
+		float3 SamplePosition = RayPos + RayDir * T;
+		Dist = map( SamplePosition );
+		if( Dist < Precision || T > Tmax )
+		{
+			break;
+		}
+		T += Dist;
+	}
+	if( T > Tmax )
+	{
+		Dist = -1.0;
+	}
+	return float2( T, Dist );
+}
+
+//////////////////////////////////////////////////////////////////////////
+// render
+float4 render( float3 RayPos, float3 RayDir )
+{
+	float4 Colour = float4( 0.0, 0.0, 0.0, 0.0 );
+
+	// Find intersecting point.
+	float2 RayRes = rayMarch( RayPos, RayDir );
+	if( RayRes.y >= -0.5 )
+	{
+		float3 Position = RayPos + RayDir * RayRes.x;
+
+		float4 Colour = float4( 1.0, 1.0, 1.0, 0.0 );
+		float Density = 0.1;
+
+		// TODO: Transform position from world to local for 3D texture look ups later?
+
+		// March to opposite side of volume, accumulate alpha.
+		float Precision = 0.001;
+		float StepSize = 0.1;
+		float Tmin = 1.0;
+		float Tmax = 1000.0;
+		int MaxSteps = 128;
+		float T = Tmin;
+		float Dist = -1.0;
+		for( int Idx = 0; Idx < MaxSteps; ++Idx )
+		{
+			float3 SamplePosition = Position + RayDir * T;
+			Dist = map( SamplePosition );
+			if( Dist > Precision || T > Tmax || Density > 1.0 )
+			{
+				break;
+			}
+			T += StepSize;
+			Colour.w += Density * StepSize * max( 0.0, sdCloud( SamplePosition ) );
+		}
+
+		//
+		return Colour;
+	}
+	return float4( 0.0, 0.0, 0.0, 0.0 );
+}
+
+//////////////////////////////////////////////////////////////////////////
+// pixelMain
+PS_MAIN( pixelMain )
+{
+	PS_ENTER;
+	outputFrag[0] = render( IN( VsRayPos ), normalize( IN( VsRayDir ) ) );
+	PS_EXIT;
+}
+
+#endif // PIXEL_SHADER
