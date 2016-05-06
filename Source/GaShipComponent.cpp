@@ -2,6 +2,10 @@
 #include "System/Scene/ScnEntity.h"
 #include "System/Scene/Rendering/ScnModel.h"
 
+#include "System/Os/OsCore.h"
+#include "System/Os/OsEvents.h"
+
+
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipProcessor::GaShipProcessor():
@@ -11,6 +15,7 @@ GaShipProcessor::GaShipProcessor():
 			ScnComponentPriority::DEFAULT_UPDATE,
 			std::bind( &GaShipProcessor::updateShips, this, std::placeholders::_1 ) ) } )
 {
+	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -39,7 +44,11 @@ void GaShipProcessor::updateShips( const ScnComponentList& Components )
 // initialise
 void GaShipProcessor::initialise()
 {
-
+	OsCore::pImpl()->subscribe(osEVT_INPUT_KEYDOWN, this,
+		[this] (EvtID ID, const EvtBaseEvent& InEvent) {
+			const auto &Event = InEvent.get<OsEventInputKeyboard>();
+			return evtRET_PASS;
+		});
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -59,6 +68,7 @@ void GaShipComponent::StaticRegisterClass()
 	{
 		new ReField( "IsPlayer_", &GaShipComponent::IsPlayer_, bcRFF_IMPORTER ),
 
+		new ReField( "InstructionSet_", &GaShipComponent::InstructionSet_, bcRFF_TRANSIENT ),
 		new ReField( "Model_", &GaShipComponent::Model_, bcRFF_TRANSIENT ),
 		new ReField( "GunNodeIndices_", &GaShipComponent::GunNodeIndices_, bcRFF_TRANSIENT ),
 		new ReField( "EngineNodeIndices_", &GaShipComponent::EngineNodeIndices_, bcRFF_TRANSIENT ),
@@ -72,6 +82,7 @@ void GaShipComponent::StaticRegisterClass()
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipComponent::GaShipComponent()
+	: InstructionSet_(0)
 {
 }
 

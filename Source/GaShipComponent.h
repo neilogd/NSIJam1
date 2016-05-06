@@ -6,6 +6,35 @@
 #include "System/Scene/ScnComponent.h"
 #include "System/Scene/ScnComponentProcessor.h"
 
+#include <vector>
+
+enum class InstructionState 
+{
+	SWITCH_ON,
+	SWITCH_OFF
+};
+
+enum class Instruction 
+{
+	MOVE_LEFT,
+	MOVE_RIGHT,
+	MOVE_UP,
+	MOVE_DOWN,
+	SHOOT
+};
+
+class WaveInstruction 
+{
+	public:
+	WaveInstruction(double Offset, InstructionState State, Instruction Instruction) 
+		:Offset_(Offset), State_(State), Instruction_(Instruction)
+	{
+	}
+	double Offset_;
+	InstructionState State_;
+	Instruction Instruction_;
+};
+
 //////////////////////////////////////////////////////////////////////////
 // GaShipProcessor
 class GaShipProcessor : 
@@ -23,6 +52,7 @@ protected:
 	void shutdown() override;
 
 private:
+	std::vector<std::vector<WaveInstruction>> InstructionSets_;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -43,6 +73,8 @@ private:
 	friend class GaShipProcessor;
 
 	BcBool IsPlayer_ = BcFalse;
+
+	int InstructionSet_ = 0;
 
 	class ScnModelComponent* Model_ = nullptr;
 	std::vector< BcU32 > GunNodeIndices_;
