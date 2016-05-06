@@ -25,7 +25,15 @@
 				},
 
 				{
-					"$Class"				: "GaGameComponent"
+					"$Class"				: "GaGameComponent",
+
+					"playershiptemplates"			: [
+						"$(ScnEntity:ships.PlayerShip)"
+					],
+
+					"enemyshiptemplates"			: [
+						"$(ScnEntity:ships.EnemyShipA)"
+					]
 				},
 
 				{

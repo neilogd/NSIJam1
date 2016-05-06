@@ -18,13 +18,13 @@ REFLECTION_DEFINE_DERIVED( GaGameComponent );
 
 void GaGameComponent::StaticRegisterClass()
 {
-#if 0
 	ReField* Fields[] = 
 	{
+		new ReField( "PlayerShipTemplates_", &GaGameComponent::PlayerShipTemplates_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY ),
+		new ReField( "EnemyShipTemplates_", &GaGameComponent::EnemyShipTemplates_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY ),
 	};
-#endif
 
-	ReRegisterClass< GaGameComponent, Super >()
+	ReRegisterClass< GaGameComponent, Super >( Fields )
 		.addAttribute( new ScnComponentProcessor( 
 			{
 				ScnComponentProcessFuncEntry::Update< GaGameComponent >()
@@ -54,6 +54,15 @@ void GaGameComponent::update( BcF32 Tick )
 	{
 		ImGui::Separator();
 		ImGui::BeginGroup();
+
+		if( ImGui::Button( "Spawn player" ) )
+		{
+			BcAssert( PlayerShipTemplates_.size() > 0 );
+			ScnCore::pImpl()->spawnEntity( 
+				ScnEntitySpawnParams(
+				"PlayerShip_0", PlayerShipTemplates_[ 0 ],
+				MaMat4d(), getParentEntity() ) );
+		}
 
 		ImGui::EndGroup();
 		ImGui::Separator();

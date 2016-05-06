@@ -22,4 +22,7 @@ public:
 	void onDetach( ScnEntityWeakRef Parent ) override;
 	
 private:
+	std::vector< ScnEntityRef > PlayerShipTemplates_;
+	std::vector< ScnEntityRef > EnemyShipTemplates_;
+
 };
