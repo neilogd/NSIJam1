@@ -5,6 +5,10 @@
 #include "System/Os/OsCore.h"
 #include "System/Os/OsEvents.h"
 
+#include "System/Debug/DsImGui.h"
+
+#include "GaEvents.h"
+
 //////////////////////////////////////////////////////////////////////////
 // StaticRegisterClass
 REFLECTION_DEFINE_DERIVED( GaWaveComponent );
@@ -64,5 +68,36 @@ float GaWaveComponent::getShipOffset(int Ship)
 
 void GaWaveComponent::update(float Tick)
 {
+	if (ImGui::Begin("Wave Debug Menu"))
+	{
+		ImGui::Separator();
+		ImGui::BeginGroup();
+
+		if (ImGui::Button("Start New Wave"))
+		{
+			StartWave();
+		}
+		if (ImGui::Button("End Wave"))
+		{
+			EndWave();
+		}
+		ImGui::EndGroup();
+		ImGui::Separator();
+	}
+	ImGui::End();
+}
+
+void GaWaveComponent::StartWave()
+{
+	GaEventWave Event;
+	Event.StartWave_ = true;
+	OsCore::pImpl()->publish(gaEVT_START_WAVE, Event);
+}
+
+void GaWaveComponent::EndWave()
+{
+	GaEventWave Event;
+	Event.StartWave_ = false;
+	OsCore::pImpl()->publish(gaEVT_START_WAVE, Event);
 
 }

@@ -24,6 +24,9 @@ public:
 	float getShipOffset(int Ship);
 
 	void update(float Tick);
+
+	void StartWave();
+	void EndWave();
 private:
 	friend class GaWaveProcessor;
 	int CurrentWave_;
