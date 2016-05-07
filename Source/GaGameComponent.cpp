@@ -22,6 +22,9 @@ void GaGameComponent::StaticRegisterClass()
 	{
 		new ReField( "PlayerShipTemplates_", &GaGameComponent::PlayerShipTemplates_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY ),
 		new ReField( "EnemyShipTemplates_", &GaGameComponent::EnemyShipTemplates_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY ),
+		new ReField( "MaxX_", &GaGameComponent::MaxX_, bcRFF_IMPORTER ),
+		new ReField( "MinZ_", &GaGameComponent::MinZ_, bcRFF_IMPORTER ),
+		new ReField( "MaxZ_", &GaGameComponent::MaxZ_, bcRFF_IMPORTER ),
 	};
 
 	ReRegisterClass< GaGameComponent, Super >( Fields )
@@ -36,6 +39,20 @@ void GaGameComponent::StaticRegisterClass()
 GaGameComponent::GaGameComponent()
 {
 
+}
+
+//////////////////////////////////////////////////////////////////////////
+// GetConstraintMin
+MaVec3d GaGameComponent::getConstraintMin()
+{
+	return MaVec3d(-MaxX_, 0.0f, MinZ_);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// getConstraintMax
+MaVec3d GaGameComponent::getConstraintMax()
+{
+	return MaVec3d(MaxX_, 0.0f, MaxZ_);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,10 +82,11 @@ void GaGameComponent::update( BcF32 Tick )
 		}
 		if (ImGui::Button("Spawn Enemy"))
 		{
+			int ship = BcRandom::Global.rand() % EnemyShipTemplates_.size();
 			BcAssert(EnemyShipTemplates_.size() > 0);
 			ScnCore::pImpl()->spawnEntity(
 				ScnEntitySpawnParams(
-					"EnemyShip_0", EnemyShipTemplates_[0],
+					"EnemyShip_0", EnemyShipTemplates_[ship],
 					MaMat4d(), getParentEntity()));
 		}
 		ImGui::EndGroup();

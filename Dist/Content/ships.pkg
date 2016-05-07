@@ -25,7 +25,8 @@
 
 			"components" : [
 				{
-					"$Class"				: "GaShipComponent"
+					"$Class"				: "GaShipComponent",
+					"zspeed"				: -20
 				},
 
 				{

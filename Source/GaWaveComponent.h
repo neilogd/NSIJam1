@@ -5,7 +5,7 @@
 
 #include <vector>
 
-
+class GaGameComponent;
 //////////////////////////////////////////////////////////////////////////
 // GaWaveComponent
 class GaWaveComponent:
@@ -30,4 +30,6 @@ public:
 private:
 	friend class GaWaveProcessor;
 	int CurrentWave_;
+	GaGameComponent* GameComponent_;
+	
 };

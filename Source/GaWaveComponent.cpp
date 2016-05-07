@@ -1,4 +1,5 @@
 #include "GaWaveComponent.h"
+#include "Base/BcRandom.h"
 #include "System/Scene/ScnEntity.h"
 #include "System/Scene/Rendering/ScnModel.h"
 
@@ -8,6 +9,7 @@
 #include "System/Debug/DsImGui.h"
 
 #include "GaEvents.h"
+#include "GaGameComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // StaticRegisterClass
@@ -46,6 +48,7 @@ GaWaveComponent::~GaWaveComponent()
 void GaWaveComponent::onAttach( ScnEntityWeakRef Parent )
 {
 	Super::onAttach( Parent );
+	GameComponent_ = ParentEntity_->getComponentByType<GaGameComponent>();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -57,7 +60,7 @@ void GaWaveComponent::onDetach( ScnEntityWeakRef Parent )
 
 int GaWaveComponent::getEnemySpawnCount()
 {
-	return 1;
+	return CurrentWave_;
 }
 
 float GaWaveComponent::getShipOffset(int Ship)
@@ -92,6 +95,16 @@ void GaWaveComponent::StartWave()
 	GaEventWave Event;
 	Event.StartWave_ = true;
 	OsCore::pImpl()->publish(gaEVT_START_WAVE, Event);
+	for (int i = 0; i < getEnemySpawnCount(); ++i)
+	{
+		int ship = BcRandom::Global.rand() % GameComponent_->EnemyShipTemplates_.size();
+		MaMat4d mat;
+		mat.translation(MaVec3d(getShipOffset(i), 0.0f, GameComponent_->getConstraintMax().z()));
+		ScnCore::pImpl()->spawnEntity(
+			ScnEntitySpawnParams(
+				"EnemyShip_0", GameComponent_->EnemyShipTemplates_[ship],
+				mat, getParentEntity()));
+	}
 }
 
 void GaWaveComponent::EndWave()
@@ -99,5 +112,6 @@ void GaWaveComponent::EndWave()
 	GaEventWave Event;
 	Event.StartWave_ = false;
 	OsCore::pImpl()->publish(gaEVT_END_WAVE, Event);
+	++CurrentWave_;
 
 }
