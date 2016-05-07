@@ -10,10 +10,16 @@
 // Ctor
 GaShipProcessor::GaShipProcessor():
 	ScnComponentProcessor( {
+	ScnComponentProcessFuncEntry(
+		"Update Ships",
+			ScnComponentPriority::DEFAULT_UPDATE,
+			std::bind(&GaShipProcessor::updateShips, this, std::placeholders::_1)),
 		ScnComponentProcessFuncEntry(
 			"Update Ships",
-			ScnComponentPriority::DEFAULT_UPDATE,
-			std::bind( &GaShipProcessor::updateShips, this, std::placeholders::_1 ) ) } )
+			ScnComponentPriority::DEFAULT_UPDATE + 10,
+			std::bind(&GaShipProcessor::updateShipPositions, this, std::placeholders::_1)),
+		} ),
+		StartWave_(BcFalse)
 {
 	InstructionSets_.push_back(std::vector<WaveInstruction>());
 	InstructionSets_[0].push_back(WaveInstruction(0, InstructionState::SWITCH_ON, Instruction::MOVE_LEFT));
@@ -39,31 +45,31 @@ GaShipProcessor::~GaShipProcessor()
 
 //////////////////////////////////////////////////////////////////////////
 // updateShips
-void GaShipProcessor::updateShips( const ScnComponentList& Components )
+void GaShipProcessor::updateShips(const ScnComponentList& Components)
 {
 	static float Time = 0.0f;
 	static float dt = 1 / 60.0f;
 	Time += dt;
 	// Iterate over all the ships.
-	for( BcU32 Idx = 0; Idx < Components.size(); ++Idx )
+	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
 	{
-		auto Component = Components[ Idx ];
-		BcAssert( Component->isTypeOf< GaShipComponent >() );
-		auto* ShipComponent = static_cast< GaShipComponent* >( Component.get() );
+		auto Component = Components[Idx];
+		BcAssert(Component->isTypeOf< GaShipComponent >());
+		auto* ShipComponent = static_cast< GaShipComponent* >(Component.get());
 		int Set = ShipComponent->InstructionSet_;
 		int Step = ShipComponent->CurrentStep_;
 		// Update AI Ships setting. This will currently eventually throw an error
-		if (ShipComponent->IsPlayer_) 
+		if (ShipComponent->IsPlayer_)
 		{
-			while (NewInstructions_.size() > ShipComponent->CurrentStep_) {
-				NewInstructions_[ShipComponent->CurrentStep_].Offset_ = ShipComponent->TimeOffset_;
-				if (NewInstructions_[ShipComponent->CurrentStep_].State_ == InstructionState::SWITCH_ON)
+			while (ShipComponent->Instructions_.size() > ShipComponent->CurrentStep_) {
+				ShipComponent->Instructions_[ShipComponent->CurrentStep_].Offset_ = ShipComponent->TimeOffset_;
+				if (ShipComponent->Instructions_[ShipComponent->CurrentStep_].State_ == InstructionState::SWITCH_ON)
 				{
-					ShipComponent->CurrentInstructions_ |= NewInstructions_[ShipComponent->CurrentStep_].Instruction_;
+					ShipComponent->CurrentInstructions_ |= ShipComponent->Instructions_[ShipComponent->CurrentStep_].Instruction_;
 				}
 				else
 				{
-					Instruction inverse = Instruction::ALL ^ NewInstructions_[ShipComponent->CurrentStep_].Instruction_;
+					Instruction inverse = Instruction::ALL ^ ShipComponent->Instructions_[ShipComponent->CurrentStep_].Instruction_;
 					ShipComponent->CurrentInstructions_ &= inverse;
 				}
 				ShipComponent->CurrentStep_++;
@@ -84,7 +90,7 @@ void GaShipProcessor::updateShips( const ScnComponentList& Components )
 				}
 				ShipComponent->CurrentStep_++;
 				if (ShipComponent->CurrentStep_ == InstructionSets_[Set].size())
-				{ 
+				{
 					ShipComponent->CurrentStep_ = 0;
 					ShipComponent->TimeOffset_ = 2;
 					ShipComponent->CurrentInstructions_ = Instruction::NONE;
@@ -92,7 +98,22 @@ void GaShipProcessor::updateShips( const ScnComponentList& Components )
 				Step = ShipComponent->CurrentStep_;
 			}
 		}
-		
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// updateShipPositions
+void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
+{
+	static float Time = 0.0f;
+	static float dt = 1 / 60.0f;
+	Time += dt;
+	// Iterate over all the ships.
+	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
+	{
+		auto Component = Components[Idx];
+		BcAssert(Component->isTypeOf< GaShipComponent >());
+		auto* ShipComponent = static_cast< GaShipComponent* >(Component.get());
 		// Ship Movement. Applies to all ships
 		float X = 0;
 		float Z = 0;
@@ -101,7 +122,7 @@ void GaShipProcessor::updateShips( const ScnComponentList& Components )
 			X -= 1.0f;
 		if (BcContainsAnyFlags(instr, Instruction::MOVE_RIGHT))
 			X += 1.0f;
-		if (BcContainsAnyFlags(instr, Instruction::MOVE_UP)) 
+		if (BcContainsAnyFlags(instr, Instruction::MOVE_UP))
 			Z += 1.0f;
 		if (BcContainsAnyFlags(instr, Instruction::MOVE_DOWN))
 			Z -= 1.0f;
@@ -121,73 +142,13 @@ void GaShipProcessor::initialise()
 	OsCore::pImpl()->subscribe(osEVT_INPUT_KEYDOWN, this,
 		[this] (EvtID ID, const EvtBaseEvent& InEvent) {
 			const auto &Event = InEvent.get<OsEventInputKeyboard>();
-			if (this->InWave_) {
-				Instruction instr = Instruction::NONE;
-				switch (Event.AsciiCode_)
-				{
-				case 'a':
-				case 'A':
-					instr = Instruction::MOVE_LEFT;
-					break;
-				case 'd':
-				case 'D':
-					instr = Instruction::MOVE_RIGHT;
-					break;
-				case 'w':
-				case 'W':
-					instr = Instruction::MOVE_UP;
-					break;
-				case 's':
-				case 'S':
-					instr = Instruction::MOVE_DOWN;
-					break;
-				case ' ':
-					instr = Instruction::SHOOT;
-					break;
-
-				default:
-					break;
-				}
-				if (instr != Instruction::NONE) {
-					this->NewInstructions_.push_back(WaveInstruction(-0.0f, InstructionState::SWITCH_ON, instr));
-					PSY_LOG("New instruction");
-				}
-			}
+			this->processInput(Event.AsciiCode_, InstructionState::SWITCH_ON);
 			return evtRET_PASS;
 		});
 	OsCore::pImpl()->subscribe(osEVT_INPUT_KEYUP, this,
 		[this](EvtID ID, const EvtBaseEvent& InEvent) {
 		const auto &Event = InEvent.get<OsEventInputKeyboard>();
-		if (this->InWave_) {
-			Instruction instr = Instruction::NONE;
-			switch (Event.AsciiCode_)
-			{
-			case 'a':
-			case 'A':
-				instr = Instruction::MOVE_LEFT;
-				break;
-			case 'd':
-			case 'D':
-				instr = Instruction::MOVE_RIGHT;
-				break;
-			case 'w':
-			case 'W':
-				instr = Instruction::MOVE_UP;
-				break;
-			case 's':
-			case 'S':
-				instr = Instruction::MOVE_DOWN;
-				break;
-			case ' ':
-				instr = Instruction::SHOOT;
-				break;
-
-			default:
-				break;
-			}
-			if (instr != Instruction::NONE)
-				this->NewInstructions_.push_back(WaveInstruction(-0.0f, InstructionState::SWITCH_OFF, instr));
-		}
+		this->processInput(Event.AsciiCode_, InstructionState::SWITCH_OFF);
 		return evtRET_PASS;
 	});
 	OsCore::pImpl()->subscribe(gaEVT_START_WAVE, this,
@@ -198,11 +159,54 @@ void GaShipProcessor::initialise()
 	);
 }
 
+void GaShipProcessor::processInput(BcU32 AsciiCode, InstructionState State)
+{
+	if (this->InWave_) {
+		Instruction instr = Instruction::NONE;
+		switch (AsciiCode)
+		{
+		case 'a':
+		case 'A':
+			instr = Instruction::MOVE_LEFT;
+			break;
+		case 'd':
+		case 'D':
+			instr = Instruction::MOVE_RIGHT;
+			break;
+		case 'w':
+		case 'W':
+			instr = Instruction::MOVE_UP;
+			break;
+		case 's':
+		case 'S':
+			instr = Instruction::MOVE_DOWN;
+			break;
+		case ' ':
+			instr = Instruction::SHOOT;
+			break;
+
+		default:
+			break;
+		}
+		if (instr != Instruction::NONE) {
+			Players_[0]->Instructions_.push_back(WaveInstruction(-0.0f, State, instr));
+		}
+	}
+
+}
+
 //////////////////////////////////////////////////////////////////////////
 // shutdown
 void GaShipProcessor::shutdown()
 {
 
+}
+
+//////////////////////////////////////////////////////////////////////////
+// addPlayer
+void GaShipProcessor::addPlayer(GaShipComponent* Player)
+{
+	Players_.push_back(Player);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -253,7 +257,7 @@ GaShipComponent::~GaShipComponent()
 void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 {
 	Super::onAttach( Parent );
-
+	GaShipProcessor::pImpl()->addPlayer(this);
 	Model_ = Parent->getComponentByType< ScnModelComponent >();
 	if( Model_ )
 	{
