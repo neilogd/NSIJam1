@@ -85,6 +85,7 @@
 #include "System/Sound/SsCore.h"
 #include "System/SysKernel.h"
 #include "System/SysSystem.h"
+#include "GaBulletComponent.h"
 #include "GaCameraComponent.h"
 #include "GaGameComponent.h"
 #include "GaHeightmapComponent.h"
@@ -210,6 +211,7 @@ void AutoGenRegisterReflection()
 	SsCore::StaticRegisterClass();
 	SysKernel::StaticRegisterClass();
 	SysSystem::StaticRegisterClass();
+	GaBulletComponent::StaticRegisterClass();
 	GaCameraComponent::StaticRegisterClass();
 	GaGameComponent::StaticRegisterClass();
 	GaHeightmapUniformBlockData::StaticRegisterClass();

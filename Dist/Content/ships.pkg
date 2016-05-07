@@ -7,7 +7,8 @@
 			"components" : [
 				{
 					"$Class"				: "GaShipComponent",
-					"isPlayer"				: true
+					"isPlayer"				: true,
+					"firerate"				: 0.5
 				},
 
 				{
@@ -26,12 +27,31 @@
 			"components" : [
 				{
 					"$Class"				: "GaShipComponent",
-					"zspeed"				: -20
+					"zspeed"				: -20,
+					"firerate"				: 0.5
 				},
 
 				{
 					"$Class"				: "ScnModelComponent",
 					"model"					: "$(ScnModel:models.cube)",
+					"islit"					: true,
+					"scale"					: "1.0, 1.0, 1.0"
+				}
+			]
+		},
+		
+		{
+			"name"		:		"WeaponBullet",
+			"type"		:		"ScnEntity",
+			
+			"components" : [
+				{
+					"$Class"				: "GaBulletComponent",
+					"speed"					: 30
+				},
+				{
+					"$Class"				: "ScnModelComponent",
+					"model"					: "$(ScnModel:models.sphere)",
 					"islit"					: true,
 					"scale"					: "1.0, 1.0, 1.0"
 				}

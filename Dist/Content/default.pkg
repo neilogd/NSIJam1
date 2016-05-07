@@ -37,7 +37,7 @@
 
 				{
 					"$Class"				: "GaGameComponent",
-					"maxX" 					: -100,
+					"maxX" 					: 100,
 					"minZ"					: -100,
 					"maxZ"					: 100,
 					"playershiptemplates"			: [

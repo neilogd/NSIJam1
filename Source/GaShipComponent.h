@@ -59,7 +59,8 @@ public:
 
 	void updatePlayers(const ScnComponentList& Components);
 	void updateEnemies( const ScnComponentList& Components );
-	void updateShipPositions( const ScnComponentList& Components );	
+	void updateShipPositions(const ScnComponentList& Components);
+	void fireWeapons(const ScnComponentList& Components);
 	void processInput(BcU32 AsciiCode, InstructionState State);
 
 	void addPlayer(GaShipComponent* Player);
@@ -107,9 +108,11 @@ private:
 	float ZSpeed_;
 
 	float TimeOffset_;
+	float FireRate_;
+	float TimeToShoot_;
 
 	class ScnModelComponent* Model_ = nullptr;
 	std::vector< BcU32 > GunNodeIndices_;
 	std::vector< BcU32 > EngineNodeIndices_;
 	std::vector< WaveInstruction > Instructions_;
-	};
+};

@@ -8,12 +8,13 @@
 #include "System/Os/OsEvents.h"
 
 #include "GaGameComponent.h"
+#include "GaBulletComponent.h"
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipProcessor::GaShipProcessor():
 	ScnComponentProcessor( {
 	ScnComponentProcessFuncEntry(
-		"Update Update",
+		"Update Player",
 		ScnComponentPriority::DEFAULT_UPDATE,
 		std::bind(&GaShipProcessor::updatePlayers, this, std::placeholders::_1)),
 	ScnComponentProcessFuncEntry(
@@ -21,13 +22,18 @@ GaShipProcessor::GaShipProcessor():
 		ScnComponentPriority::DEFAULT_UPDATE + 10,
 		std::bind(&GaShipProcessor::updateEnemies, this, std::placeholders::_1)),
 	ScnComponentProcessFuncEntry(
-		"Update Ships",
+		"Move Ships",
 		ScnComponentPriority::DEFAULT_UPDATE + 20,
 		std::bind(&GaShipProcessor::updateShipPositions, this, std::placeholders::_1)),
+	ScnComponentProcessFuncEntry(
+		"Fire Weapons!",
+		ScnComponentPriority::DEFAULT_UPDATE + 30,
+		std::bind(&GaShipProcessor::fireWeapons, this, std::placeholders::_1))
 	} )
 {
 	InstructionSets_.push_back(std::vector<WaveInstruction>());
 	InstructionSets_[0].push_back(WaveInstruction(0, InstructionState::SWITCH_ON, Instruction::MOVE_LEFT));
+	InstructionSets_[0].push_back(WaveInstruction(0, InstructionState::SWITCH_ON, Instruction::SHOOT));
 	InstructionSets_[0].push_back(WaveInstruction(3, InstructionState::SWITCH_OFF, Instruction::MOVE_LEFT));
 	InstructionSets_[0].push_back(WaveInstruction(4, InstructionState::SWITCH_ON, Instruction::MOVE_RIGHT));
 	InstructionSets_[0].push_back(WaveInstruction(7, InstructionState::SWITCH_OFF, Instruction::MOVE_RIGHT));
@@ -150,11 +156,76 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 		movement.normalise();
 		movement.x(movement.x() * ShipComponent->Speed_);
 		movement.z(movement.z() * ShipComponent->Speed_ + ShipComponent->ZSpeed_);
-		MaVec3d newPos = ShipComponent->getParentEntity()->getWorldPosition() + movement * dt;
+		MaVec3d oldPos = ShipComponent->getParentEntity()->getWorldPosition();
+		MaVec3d newPos = oldPos + movement * dt;
+
+		if (newPos.x() < MinConstraint_.x())
+			newPos.x(MinConstraint_.x());
+		else if (newPos.x() > MaxConstraint_.x())
+			newPos.x(MaxConstraint_.x());
+		if (newPos.z() > MaxConstraint_.z())
+		{
+			if (ShipComponent->IsPlayer_)
+			{
+				newPos.z(MaxConstraint_.z());
+			}
+			else
+			{
+				newPos.z(oldPos.z() + ShipComponent->ZSpeed_);
+			}
+		}
+		if (newPos.z() < MinConstraint_.z())
+		{
+			if (ShipComponent->IsPlayer_)
+			{
+				newPos.z(MinConstraint_.z());
+			}
+			else
+			{
+				// Destroy ship
+			}
+		}
 		ShipComponent->getParentEntity()->setWorldPosition(newPos);
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////
+// fireWeapons
+void GaShipProcessor::fireWeapons(const ScnComponentList& Components)
+{
+	static float Time = 0.0f;
+	static float dt = 1 / 60.0f;
+	Time += dt;
+	// Iterate over all the ships.
+	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
+	{
+		auto Component = Components[Idx];
+		BcAssert(Component->isTypeOf< GaShipComponent >());
+		auto* ShipComponent = static_cast< GaShipComponent* >(Component.get());
+		if ((ShipComponent->CurrentInstructions_ & Instruction::SHOOT) != Instruction::NONE) 
+		{
+			ShipComponent->TimeToShoot_ += dt;
+			if (ShipComponent->TimeToShoot_ > ShipComponent->FireRate_)
+			{
+				ShipComponent->TimeToShoot_ -= ShipComponent->FireRate_;
+				float Z = -1.0f;
+				if (ShipComponent->IsPlayer_)
+					Z = 1.0f;
+				for (int Idx = 0; Idx < ShipComponent->GunNodeIndices_.size(); ++Idx)
+				{
+					int index = ShipComponent->GunNodeIndices_[Idx];
+					MaMat4d mat = ShipComponent->Model_->getNodeWorldTransform(index);;
+					ScnEntity* ent = ScnCore::pImpl()->spawnEntity(
+						ScnEntitySpawnParams(
+							"Bullet_0", "ships", "WeaponBullet",
+							mat, ShipComponent->getParentEntity()->getParentEntity()));
+					ent->getComponentByType<GaBulletComponent>()->setDirection(MaVec3d(0, 0, Z));
+				}
+			}
+		}
+
+	}
+}
 //////////////////////////////////////////////////////////////////////////
 // initialise
 void GaShipProcessor::initialise()
@@ -291,12 +362,14 @@ void GaShipComponent::StaticRegisterClass()
 		new ReField("InstructionSet_", &GaShipComponent::InstructionSet_, bcRFF_IMPORTER),
 		new ReField("CurrentStep_", &GaShipComponent::CurrentStep_, bcRFF_TRANSIENT),
 		new ReField("CurrentInstructions_", &GaShipComponent::CurrentInstructions_, bcRFF_TRANSIENT),
-		new ReField("Speed_", &GaShipComponent::Speed_, bcRFF_TRANSIENT),
-		new ReField("ZSpeed_", &GaShipComponent::ZSpeed_, bcRFF_TRANSIENT),
+		new ReField("Speed_", &GaShipComponent::Speed_, bcRFF_IMPORTER),
+		new ReField("ZSpeed_", &GaShipComponent::ZSpeed_, bcRFF_IMPORTER),
 		new ReField("TimeOffset_", &GaShipComponent::TimeOffset_, bcRFF_TRANSIENT),
 		new ReField( "Model_", &GaShipComponent::Model_, bcRFF_TRANSIENT ),
 		new ReField( "GunNodeIndices_", &GaShipComponent::GunNodeIndices_, bcRFF_TRANSIENT ),
 		new ReField( "EngineNodeIndices_", &GaShipComponent::EngineNodeIndices_, bcRFF_TRANSIENT ),
+		new ReField( "FireRate_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
+		new ReField( "TimeToShoot_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
 	};
 	
 	using namespace std::placeholders;
@@ -312,7 +385,8 @@ GaShipComponent::GaShipComponent()
 	CurrentStep_(0),
 	ZSpeed_(0),
 	Speed_(15),
-	TimeOffset_(0)
+	TimeOffset_(0),
+	TimeToShoot_(0)
 {
 }
 
