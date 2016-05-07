@@ -46,7 +46,7 @@ class WaveInstruction
 };
 
 class GaShipComponent;
-
+class GaGameComponent;
 //////////////////////////////////////////////////////////////////////////
 // GaShipProcessor
 class GaShipProcessor : 
@@ -66,6 +66,9 @@ public:
 	void requestInstructions(GaShipComponent* ShipComponent);
 	void startWave();
 	void endWave();
+
+	void registerGame(GaGameComponent* Game);
+	void deregisterGame(GaGameComponent* Game);
 protected:
 	void initialise() override;
 	void shutdown() override;
@@ -73,6 +76,9 @@ protected:
 private:
 	std::vector<std::vector<WaveInstruction>> InstructionSets_;
 	std::vector<GaShipComponent*> Players_;
+	MaVec3d MinConstraint_;
+	MaVec3d MaxConstraint_;
+	GaGameComponent* GameComponent_;
 };
 
 //////////////////////////////////////////////////////////////////////////

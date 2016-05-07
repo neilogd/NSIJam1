@@ -7,7 +7,7 @@
 #include "System/Os/OsCore.h"
 #include "System/Os/OsEvents.h"
 
-
+#include "GaGameComponent.h"
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipProcessor::GaShipProcessor():
@@ -255,6 +255,23 @@ void GaShipProcessor::addPlayer(GaShipComponent* Player)
 	Players_.push_back(Player);
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// addPlayer
+void GaShipProcessor::registerGame(GaGameComponent* Game) 
+{
+	GameComponent_ = Game;
+	MinConstraint_ = Game->getConstraintMin();
+	MaxConstraint_ = Game->getConstraintMax();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// addPlayer
+void GaShipProcessor::deregisterGame(GaGameComponent* Game)
+{
+	if ( Game == GameComponent_)
+		GameComponent_ = nullptr;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // requestInstructions
