@@ -132,6 +132,120 @@
 
 			"source"		: "Content/Source/Textures/heightmap.png",
 			"format" : "R8G8B8A"
+		},
+
+		////////////////////////////////////////////////////////////////////////
+		/// Terrain
+		{
+			"type"			: "ScnTexture",
+			"name"			: "dirt",
+
+			"source"		: "Content/Source/Textures/dirt.png",
+			"format" : "DXT1",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
+		},
+
+		{
+			"type"			: "ScnTexture",
+			"name"			: "grass",
+
+			"source"		: "Content/Source/Textures/grass.png",
+			"format" : "DXT1",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
+		},
+
+		{
+			"type"			: "ScnTexture",
+			"name"			: "rock",
+
+			"source"		: "Content/Source/Textures/rock.png",
+			"format" : "DXT1",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
+		},
+
+		{
+			"type"			: "ScnTexture",
+			"name"			: "snow",
+
+			"source"		: "Content/Source/Textures/snow.png",
+			"format" : "DXT1",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
+		},
+
+		{
+			"type"			: "ScnTexture",
+			"name"			: "dirt_m",
+
+			"source"		: "Content/Source/Textures/dirt_m.png",
+			"format" : "R8G8B8A8",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
+		},
+
+		{
+			"type"			: "ScnTexture",
+			"name"			: "grass_m",
+
+			"source"		: "Content/Source/Textures/grass_m.png",
+			"format" : "R8G8B8A8",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
+		},
+
+		{
+			"type"			: "ScnTexture",
+			"name"			: "rock_m",
+
+			"source"		: "Content/Source/Textures/rock_m.png",
+			"format" : "R8G8B8A8",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
+		},
+
+		{
+			"type"			: "ScnTexture",
+			"name"			: "snow_m",
+
+			"source"		: "Content/Source/Textures/snow_m.png",
+			"format" : "R8G8B8A8",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
 		}
 
 	]
