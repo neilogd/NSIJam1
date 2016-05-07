@@ -1,4 +1,6 @@
 #include "GaShipComponent.h"
+
+#include "Base/BcRandom.h"
 #include "System/Scene/ScnEntity.h"
 #include "System/Scene/Rendering/ScnModel.h"
 
@@ -18,8 +20,7 @@ GaShipProcessor::GaShipProcessor():
 			"Update Ships",
 			ScnComponentPriority::DEFAULT_UPDATE + 10,
 			std::bind(&GaShipProcessor::updateShipPositions, this, std::placeholders::_1)),
-		} ),
-		StartWave_(BcFalse)
+		} )
 {
 	InstructionSets_.push_back(std::vector<WaveInstruction>());
 	InstructionSets_[0].push_back(WaveInstruction(0, InstructionState::SWITCH_ON, Instruction::MOVE_LEFT));
@@ -34,7 +35,6 @@ GaShipProcessor::GaShipProcessor():
 	InstructionSets_[0].push_back(WaveInstruction(16, InstructionState::SWITCH_ON, Instruction::MOVE_RIGHT));
 	InstructionSets_[0].push_back(WaveInstruction(19, InstructionState::SWITCH_OFF, Instruction::MOVE_RIGHT));
 
-	InWave_ = BcTrue;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -59,6 +59,7 @@ void GaShipProcessor::updateShips(const ScnComponentList& Components)
 		int Set = ShipComponent->InstructionSet_;
 		int Step = ShipComponent->CurrentStep_;
 		// Update AI Ships setting. This will currently eventually throw an error
+		ShipComponent->TimeOffset_ += dt;
 		if (ShipComponent->IsPlayer_)
 		{
 			while (ShipComponent->Instructions_.size() > ShipComponent->CurrentStep_) {
@@ -77,7 +78,6 @@ void GaShipProcessor::updateShips(const ScnComponentList& Components)
 		}
 		else
 		{
-			ShipComponent->TimeOffset_ += dt;
 			while (InstructionSets_[Set][Step].Offset_ < ShipComponent->TimeOffset_) {
 				if (InstructionSets_[Set][Step].State_ == InstructionState::SWITCH_ON)
 				{
@@ -153,45 +153,71 @@ void GaShipProcessor::initialise()
 	});
 	OsCore::pImpl()->subscribe(gaEVT_START_WAVE, this,
 		[this](EvtID ID, const EvtBaseEvent& InEvent) {
-			this->InWave_ = true;
+			this->startWave();
 			return evtRET_PASS;
 		}
 	);
+	OsCore::pImpl()->subscribe(gaEVT_END_WAVE, this,
+		[this](EvtID ID, const EvtBaseEvent& InEvent) {
+		this->endWave();
+		return evtRET_PASS;
+	}
+	);
+
+}
+
+void GaShipProcessor::startWave()
+{
+	for (int i = 0; i < Players_.size(); ++i)
+	{
+		Players_[i]->Instructions_.clear();
+		Players_[i]->TimeOffset_ = 0.0f;
+		Players_[i]->CurrentStep_ = 0;
+	}
+}
+
+void GaShipProcessor::endWave()
+{
+	for (int i = 0; i < Players_.size(); ++i)
+	{
+		if (Players_[i]->Instructions_.size() > 0)
+			InstructionSets_.push_back(std::vector<WaveInstruction>(Players_[i]->Instructions_));
+		Players_[i]->Instructions_.clear();
+		Players_[i]->CurrentStep_ = 0;
+	}
 }
 
 void GaShipProcessor::processInput(BcU32 AsciiCode, InstructionState State)
 {
-	if (this->InWave_) {
-		Instruction instr = Instruction::NONE;
-		switch (AsciiCode)
-		{
-		case 'a':
-		case 'A':
-			instr = Instruction::MOVE_LEFT;
-			break;
-		case 'd':
-		case 'D':
-			instr = Instruction::MOVE_RIGHT;
-			break;
-		case 'w':
-		case 'W':
-			instr = Instruction::MOVE_UP;
-			break;
-		case 's':
-		case 'S':
-			instr = Instruction::MOVE_DOWN;
-			break;
-		case ' ':
-			instr = Instruction::SHOOT;
-			break;
+	int player = 0;
+	Instruction instr = Instruction::NONE;
+	switch (AsciiCode)
+	{
+	case 'a':
+	case 'A':
+		instr = Instruction::MOVE_LEFT;
+		break;
+	case 'd':
+	case 'D':
+		instr = Instruction::MOVE_RIGHT;
+		break;
+	case 'w':
+	case 'W':
+		instr = Instruction::MOVE_UP;
+		break;
+	case 's':
+	case 'S':
+		instr = Instruction::MOVE_DOWN;
+		break;
+	case ' ':
+		instr = Instruction::SHOOT;
+		break;
 
-		default:
-			break;
-		}
-		if (instr != Instruction::NONE) {
-			Players_[0]->Instructions_.push_back(WaveInstruction(-0.0f, State, instr));
-		}
+	default:
+		break;
 	}
+	if (player < Players_.size())
+		Players_[player]->Instructions_.push_back(WaveInstruction(-0.0f, State, instr));
 
 }
 
@@ -207,6 +233,13 @@ void GaShipProcessor::shutdown()
 void GaShipProcessor::addPlayer(GaShipComponent* Player)
 {
 	Players_.push_back(Player);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// requestInstructions
+void GaShipProcessor::requestInstructions(GaShipComponent* ShipComponent) {
+	ShipComponent->InstructionSet_ = BcRandom::Global.rand() % InstructionSets_.size();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -237,7 +270,7 @@ void GaShipComponent::StaticRegisterClass()
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipComponent::GaShipComponent()
-	: InstructionSet_(0),
+	: InstructionSet_(-1),
 	CurrentInstructions_(Instruction::NONE),
 	CurrentStep_(0),
 	ZSpeed_(0),
@@ -258,6 +291,9 @@ void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 {
 	Super::onAttach( Parent );
 	GaShipProcessor::pImpl()->addPlayer(this);
+	if (!IsPlayer_) {
+		GaShipProcessor::pImpl()->requestInstructions(this);
+	}
 	Model_ = Parent->getComponentByType< ScnModelComponent >();
 	if( Model_ )
 	{

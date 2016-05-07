@@ -62,15 +62,15 @@ public:
 	void processInput(BcU32 AsciiCode, InstructionState State);
 
 	void addPlayer(GaShipComponent* Player);
+	void requestInstructions(GaShipComponent* ShipComponent);
+	void startWave();
+	void endWave();
 protected:
 	void initialise() override;
 	void shutdown() override;
 
 private:
 	std::vector<std::vector<WaveInstruction>> InstructionSets_;
-	BcBool InWave_;
-	BcBool StartWave_;
-
 	std::vector<GaShipComponent*> Players_;
 };
 
