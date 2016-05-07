@@ -6,6 +6,8 @@
 #include "System/Scene/ScnComponent.h"
 #include "System/Scene/ScnComponentProcessor.h"
 
+#include "GaEvents.h"
+
 #include <vector>
 
 enum class InstructionState 
@@ -61,6 +63,8 @@ protected:
 
 private:
 	std::vector<std::vector<WaveInstruction>> InstructionSets_;
+	std::vector<WaveInstruction> NewInstructions_;
+	BcBool InWave_;
 };
 
 //////////////////////////////////////////////////////////////////////////

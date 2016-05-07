@@ -46,7 +46,9 @@
 						"$(ScnEntity:ships.EnemyShipA)"
 					]
 				},
-
+				{
+					"$Class"				: "GaWaveComponent"
+				},
 				{
 					"name"		:		"CameraEntity",
 					"$Class"		:	"ScnEntity",
@@ -54,7 +56,7 @@
 					"components" : [
 						{
 							"$Class"				: "GaCameraComponent",
-
+							
 							"renderers"	: [
 								"$(ScnEntity:deferred_renderer.Renderer)"
 							]

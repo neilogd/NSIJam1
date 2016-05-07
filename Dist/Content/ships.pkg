@@ -6,7 +6,8 @@
 
 			"components" : [
 				{
-					"$Class"				: "GaShipComponent"
+					"$Class"				: "GaShipComponent",
+					"isPlayer"				: true
 				},
 
 				{

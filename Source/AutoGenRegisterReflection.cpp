@@ -89,6 +89,7 @@
 #include "GaGameComponent.h"
 #include "GaHeightmapComponent.h"
 #include "GaShipComponent.h"
+#include "GaWaveComponent.h"
 void AutoGenRegisterReflection()
 {
 	MaAABB::StaticRegisterClass();
@@ -214,4 +215,5 @@ void AutoGenRegisterReflection()
 	GaHeightmapUniformBlockData::StaticRegisterClass();
 	GaHeightmapComponent::StaticRegisterClass();
 	GaShipComponent::StaticRegisterClass();
+	GaWaveComponent::StaticRegisterClass();
 }

@@ -63,7 +63,14 @@ void GaGameComponent::update( BcF32 Tick )
 				"PlayerShip_0", PlayerShipTemplates_[ 0 ],
 				MaMat4d(), getParentEntity() ) );
 		}
-
+		if (ImGui::Button("Spawn Enemy"))
+		{
+			BcAssert(EnemyShipTemplates_.size() > 0);
+			ScnCore::pImpl()->spawnEntity(
+				ScnEntitySpawnParams(
+					"EnemyShip_0", EnemyShipTemplates_[0],
+					MaMat4d(), getParentEntity()));
+		}
 		ImGui::EndGroup();
 		ImGui::Separator();
 	}
