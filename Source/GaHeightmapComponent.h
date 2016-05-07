@@ -17,7 +17,9 @@ struct GaHeightmapUniformBlockData
 	BcF32 HeightmapDimensions_ = 1.0f;
 	BcF32 HeightmapHeight_ = 1.0f;
 	BcF32 HeightmapOffset_ = 0.0f;
-	BcF32 HeightmapUnused_[3];
+	BcF32 HeightmapPositionOffset_ = 0.0f;
+	BcF32 HeightmapUVOffset_ = 0.0f;
+	BcF32 HeightmapUnused_;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,9 +56,11 @@ private:
 	ScnTextureRef Texture_;
 	ScnMaterialRef Material_;
 
+	BcF32 ScrollSpeed_ = -32.0f;
 	BcU32 Size_ = 64;
 	ScnShaderObjectUniformBlockData ObjectUniformBlock_;
 	GaHeightmapUniformBlockData HeightmapUniformBlock_;
+
 
 	RsVertexDeclarationUPtr VertexDeclaration_;
 	RsBufferUPtr VertexBuffer_;
