@@ -12,7 +12,11 @@ uniform float GaHeightmapUniformBlockDataVS_XHeightmapHeight_;
 #define HeightmapHeight_ GaHeightmapUniformBlockDataVS_XHeightmapHeight_
 uniform float GaHeightmapUniformBlockDataVS_XHeightmapOffset_;
 #define HeightmapOffset_ GaHeightmapUniformBlockDataVS_XHeightmapOffset_
-uniform float GaHeightmapUniformBlockDataVS_XHeightmapUnused_[3];
+uniform float GaHeightmapUniformBlockDataVS_XHeightmapPositionOffset_;
+#define HeightmapPositionOffset_ GaHeightmapUniformBlockDataVS_XHeightmapPositionOffset_
+uniform float GaHeightmapUniformBlockDataVS_XHeightmapUVOffset_;
+#define HeightmapUVOffset_ GaHeightmapUniformBlockDataVS_XHeightmapUVOffset_
+uniform float GaHeightmapUniformBlockDataVS_XHeightmapUnused_;
 #define HeightmapUnused_ GaHeightmapUniformBlockDataVS_XHeightmapUnused_
 
 
@@ -25,7 +29,9 @@ layout(std140) uniform GaHeightmapUniformBlockData
 	float HeightmapDimensions_;
 	float HeightmapHeight_;
 	float HeightmapOffset_;
-	float HeightmapUnused_[3];
+	float HeightmapPositionOffset_;
+	float HeightmapUVOffset_;
+	float HeightmapUnused_;
 };
 
 #endif
@@ -37,7 +43,9 @@ cbuffer GaHeightmapUniformBlockData
 	float HeightmapDimensions_;
 	float HeightmapHeight_;
 	float HeightmapOffset_;
-	float HeightmapUnused_[3];
+	float HeightmapPositionOffset_;
+	float HeightmapUVOffset_;
+	float HeightmapUnused_;
 };
 
 #endif

@@ -24,6 +24,8 @@ void GaHeightmapUniformBlockData::StaticRegisterClass()
 		new ReField( "HeightmapDimensions_", &GaHeightmapUniformBlockData::HeightmapDimensions_ ),
 		new ReField( "HeightmapHeight_", &GaHeightmapUniformBlockData::HeightmapHeight_ ),
 		new ReField( "HeightmapOffset_", &GaHeightmapUniformBlockData::HeightmapOffset_ ),
+		new ReField( "HeightmapPositionOffset_", &GaHeightmapUniformBlockData::HeightmapPositionOffset_ ),
+		new ReField( "HeightmapUVOffset_", &GaHeightmapUniformBlockData::HeightmapUVOffset_ ),
 		new ReField( "HeightmapUnused_", &GaHeightmapUniformBlockData::HeightmapUnused_ ),
 	};
 		
@@ -60,6 +62,8 @@ void GaHeightmapComponent::StaticRegisterClass()
 	{
 		new ReField( "Texture_", &GaHeightmapComponent::Texture_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY ),
 		new ReField( "Material_", &GaHeightmapComponent::Material_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY ),
+		new ReField( "ScrollSpeed_", &GaHeightmapComponent::ScrollSpeed_, bcRFF_IMPORTER ),
+		new ReField( "Size_", &GaHeightmapComponent::Size_, bcRFF_IMPORTER ),
 		new ReField( "HeightmapUniformBlock_", &GaHeightmapComponent::HeightmapUniformBlock_, bcRFF_IMPORTER ),
 
 		new ReField( "ObjectUniformBlock_", &GaHeightmapComponent::ObjectUniformBlock_, bcRFF_IMPORTER ),
@@ -96,20 +100,10 @@ void GaHeightmapComponent::update( BcF32 Tick )
 		ImGui::Separator();
 		ImGui::BeginGroup();
 		ImGui::LabelText( "Heightmap settings:", "" );
-		bool UpdateUniformBlock = false;
-		UpdateUniformBlock |= ImGui::SliderFloat( "Dimensions", &HeightmapUniformBlock_.HeightmapDimensions_, 0.0f, 256.0f, "%.3f", 4.0f );
-		UpdateUniformBlock |= ImGui::SliderFloat( "Height", &HeightmapUniformBlock_.HeightmapHeight_, 0.0f, 256.0f, "%.3f", 4.0f );
-		UpdateUniformBlock |= ImGui::SliderFloat( "Offset", &HeightmapUniformBlock_.HeightmapOffset_, -256.0f, 256.0f, "%.3f", 2.0f );
-
-		if( UpdateUniformBlock )
-		{
-			RsCore::pImpl()->updateBuffer( HeightmapUniformBuffer_.get(), 0, sizeof( HeightmapUniformBlock_ ), 
-				RsResourceUpdateFlags::ASYNC,
-				[ UniformBlock = HeightmapUniformBlock_ ]( class RsBuffer*, const RsBufferLock& Lock )
-				{
-					memcpy( Lock.Buffer_, &UniformBlock, sizeof( UniformBlock ) );
-				} );
-		}
+		ImGui::SliderFloat( "Dimensions", &HeightmapUniformBlock_.HeightmapDimensions_, 1.0f, 256.0f, "%.3f", 2.0f );
+		ImGui::SliderFloat( "Height", &HeightmapUniformBlock_.HeightmapHeight_, 0.0f, 256.0f, "%.3f", 2.0f );
+		ImGui::SliderFloat( "Offset", &HeightmapUniformBlock_.HeightmapOffset_, -256.0f, 256.0f, "%.3f", 2.0f );
+		ImGui::SliderFloat( "Scroll Speed", &ScrollSpeed_, -256.0f, 256.0f, "%.3f", 2.0f );
 
 		ImGui::EndGroup();
 		ImGui::Separator();
@@ -121,6 +115,36 @@ void GaHeightmapComponent::update( BcF32 Tick )
 	RsCore::pImpl()->updateBuffer( ObjectUniformBuffer_.get(), 0, sizeof( ObjectUniformBlock_ ), 
 		RsResourceUpdateFlags::ASYNC,
 		[ UniformBlock = ObjectUniformBlock_ ]( class RsBuffer*, const RsBufferLock& Lock )
+		{
+			memcpy( Lock.Buffer_, &UniformBlock, sizeof( UniformBlock ) );
+		} );
+
+
+	const BcF32 PositionOffsetAmount = ( HeightmapUniformBlock_.HeightmapDimensions_ / static_cast< float >( Size_ ) ) * 2.0f;
+
+	HeightmapUniformBlock_.HeightmapPositionOffset_ += Tick * ScrollSpeed_;
+	while( HeightmapUniformBlock_.HeightmapPositionOffset_ > PositionOffsetAmount )
+	{
+		HeightmapUniformBlock_.HeightmapPositionOffset_ -= PositionOffsetAmount;
+		HeightmapUniformBlock_.HeightmapUVOffset_ -= HeightmapUniformBlock_.HeightmapUVScale_.y();
+		if( HeightmapUniformBlock_.HeightmapUVOffset_ < -1.0f )
+		{
+			HeightmapUniformBlock_.HeightmapUVOffset_ += 1.0f;
+		}
+	}
+	while( HeightmapUniformBlock_.HeightmapPositionOffset_ < -PositionOffsetAmount )
+	{
+		HeightmapUniformBlock_.HeightmapPositionOffset_ += PositionOffsetAmount;
+		HeightmapUniformBlock_.HeightmapUVOffset_ += HeightmapUniformBlock_.HeightmapUVScale_.y();
+		if( HeightmapUniformBlock_.HeightmapUVOffset_ > 1.0f )
+		{
+			HeightmapUniformBlock_.HeightmapUVOffset_ -= 1.0f;
+		}
+	}
+
+	RsCore::pImpl()->updateBuffer( HeightmapUniformBuffer_.get(), 0, sizeof( HeightmapUniformBlock_ ), 
+		RsResourceUpdateFlags::ASYNC,
+		[ UniformBlock = HeightmapUniformBlock_ ]( class RsBuffer*, const RsBufferLock& Lock )
 		{
 			memcpy( Lock.Buffer_, &UniformBlock, sizeof( UniformBlock ) );
 		} );

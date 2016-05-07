@@ -26,11 +26,12 @@ VS_MAIN( vertexMain )
 	VS_ENTER;
 	float4 WorldPosition;
 
-	float2 InFlatPosition = IN( InPosition_ ) * HeightmapDimensions_;
+	float2 InFlatPosition = ( IN( InPosition_ ) * HeightmapDimensions_ ) + float2( 0.0, HeightmapPositionOffset_ );
+	float2 InTexCoord = IN( InTexCoord_ ).xy + float2( 0.0, HeightmapUVOffset_ );
 
 	float4 InPosition = float4( InFlatPosition.x, 0.0, InFlatPosition.y, 1.0 );
 
-	float Height = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy ).x;
+	float Height = PSY_SAMPLE_2D( HeightTex, InTexCoord.xy ).x;
 	InPosition.y = Height * HeightmapHeight_ + HeightmapOffset_;
 
 	PSY_MAKE_WORLD_SPACE_VERTEX( WorldPosition, InPosition );
@@ -40,10 +41,10 @@ VS_MAIN( vertexMain )
 	float4 InNormal = float4( 0.0, 1.0, 0.0, 0.0 );
 	
 	float Scale = HeightmapHeight_ / HeightmapDimensions_;
-	float HeightL = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy + float2( -HeightmapUVScale_.x, 0.0 ) ).x;
-	float HeightR = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy + float2(  HeightmapUVScale_.x, 0.0 ) ).x;
-	float HeightB = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy + float2( 0.0, -HeightmapUVScale_.x ) ).x;
-	float HeightT = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy + float2( 0.0,  HeightmapUVScale_.x ) ).x;
+	float HeightL = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2( -HeightmapUVScale_.x, 0.0 ) ).x;
+	float HeightR = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2(  HeightmapUVScale_.x, 0.0 ) ).x;
+	float HeightB = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2( 0.0, -HeightmapUVScale_.x ) ).x;
+	float HeightT = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2( 0.0,  HeightmapUVScale_.x ) ).x;
 
 	InNormal.x = ( ( Height - HeightB ) + ( HeightT - Height ) ) * Scale;
 	InNormal.y = 0.1;
@@ -85,8 +86,8 @@ void pixelAll( FRAMEBUFFER_INPUT )
 
 	Material InMaterial;
 	InMaterial.Colour_ = float3( 1.0, 1.0, 1.0 ); // MaterialBaseColour_.xyz;
-	InMaterial.Metallic_ = 0.2; // MaterialMetallic_;
-	InMaterial.Specular_ = 0.0; // MaterialSpecular_;
+	InMaterial.Metallic_ = 0.0; // MaterialMetallic_;
+	InMaterial.Specular_ = 0.1; // MaterialSpecular_;
 	InMaterial.Roughness_ = 0.8; // MaterialRoughness_;
 
 	writeFrag( FRAMEBUFFER_INTERNAL, Diffuse, Normal.xyz, float3( InMaterial.Metallic_, InMaterial.Specular_, InMaterial.Roughness_ ) );
