@@ -1,0 +1,120 @@
+#include <Psybrus.psh>
+#include <PsybrusLighting.psh>
+
+#include <UniformLight.psh>
+#include <UniformMaterial.psh>
+
+//////////////////////////////////////////////////////////////////////////
+// Features.
+#define SOFT_CLIPPING
+
+//////////////////////////////////////////////////////////////////////////
+// Vertex shader
+#if VERTEX_SHADER
+
+VS_IN_BEGIN
+	DECLARE_IN( float4, InPosition_, POSITION );
+	DECLARE_IN( float4, InNormal_, NORMAL );
+	DECLARE_IN( float4, InTexCoord_, TEXCOORD0 );
+	DECLARE_IN( float4, InColour_, COLOR0 );
+VS_IN_END
+
+VS_OUT_BEGIN
+	DECLARE_OUT( float4, VsColour0, COLOR0 );
+	DECLARE_OUT( float3, VsNormal, NORMAL );
+	DECLARE_OUT( float2, VsTexCoord0, TEXCOORD0 );
+	DECLARE_OUT( float3, VsWorldPosition, TEXCOORD1 );
+	DECLARE_OUT( float3, VsMaterial0, TEXCOORD2 );
+VS_OUT_END
+
+VS_MAIN( vertexMain )
+{
+	VS_ENTER;
+	float4 WorldPosition;
+	PSY_MAKE_WORLD_SPACE_VERTEX( WorldPosition, IN( InPosition_ ) );
+	PSY_MAKE_CLIP_SPACE_VERTEX( OUT_POSITION, WorldPosition );
+	OUT( VsWorldPosition ) = WorldPosition.xyz;
+	OUT( VsColour0 ) = IN( InColour_ );
+
+	float4 Normal;
+	PSY_MAKE_WORLD_SPACE_NORMAL( Normal, IN( InNormal_ ) );
+	OUT( VsNormal ) = Normal.xyz;
+
+	OUT( VsTexCoord0 ) = IN( InTexCoord_ ).xy;
+
+	VS_EXIT;
+}
+
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+// Pixel shader
+#if PIXEL_SHADER
+
+PS_IN_BEGIN
+	DECLARE_IN( float4, VsColour0, COLOR0 );
+	DECLARE_IN( float3, VsNormal, NORMAL );
+	DECLARE_IN( float2, VsTexCoord0, TEXCOORD0 );
+	DECLARE_IN( float3, VsWorldPosition, TEXCOORD1 );
+	DECLARE_IN( float3, VsMaterial0, TEXCOORD2 );
+	DECLARE_IN( float3, VsMaterial1, TEXCOORD3 );
+PS_IN_END
+#include <PsybrusOutput.psh>
+
+//////////////////////////////////////////////////////////////////////////
+// Samplers
+PSY_SAMPLER_2D( Clouds0Tex );
+PSY_SAMPLER_2D( Clouds1Tex );
+PSY_SAMPLER_CUBE( ReflectionTex );
+
+#if defined( SOFT_CLIPPING )
+PSY_SAMPLER_2D( DepthTex );
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+// pixelAll
+void pixelAll( FRAMEBUFFER_INPUT )
+{
+	float2 UVOffset = float2( 0.0, -ViewTime_.z );
+	float4 Clouds0 = PSY_SAMPLE_2D( Clouds0Tex, IN( VsTexCoord0 ).xy + UVOffset );
+	float4 Clouds1 = PSY_SAMPLE_2D( Clouds1Tex, IN( VsTexCoord0 ).xy + UVOffset * 1.1 );
+
+	float Cloud0 = clamp( ( Clouds0.x - 0.5 ) * 2.0, 0.0, 1.0 );
+	float Cloud1 = clamp( ( Clouds1.x - 0.5 ) * 2.0, 0.0, 1.0 );
+	float TotalCloud = max( Cloud0, Cloud1 );
+	if( TotalCloud <= 0.0 )
+	{
+		discard;
+	}
+
+	TotalCloud = Cloud0 + Cloud1;
+
+	float4 Diffuse = float4( 1.0, 1.0, 1.0, TotalCloud * 0.1 );
+	float3 Normal = normalize( IN( VsNormal ) );
+
+#if defined( SOFT_CLIPPING )
+	float DstDepth  = linearDepth( PSY_SAMPLE_2D( DepthTex, float2( gl_FragCoord.x, gl_FragCoord.y ) * ViewSize_.zw ).x, NearFar_.x, NearFar_.y );
+	float SrcDepth = linearDepth( gl_FragCoord.z, NearFar_.x, NearFar_.y );
+	float DiffDepth = clamp( ( DstDepth - SrcDepth ) / 1.0, 0.0, 1.0 );
+	Diffuse.w *= DiffDepth;
+
+#  if defined ( PERM_RENDER_DEFERRED )
+	// If we're doing soft clipping for deferred it means we're no longer rendering to the gbuffer, so we need to go linear.
+	Diffuse = gammaToLinear( Diffuse );
+#  endif
+#endif
+
+	writeFrag( FRAMEBUFFER_INTERNAL, Diffuse * IN( VsColour0 ), IN( Normal ).xyz, float3( 0.0, 0.0, 0.0 ) );
+}
+
+//////////////////////////////////////////////////////////////////////////
+// pixelMain
+PS_MAIN( pixelMain )
+{
+	PS_ENTER;
+	pixelAll( FRAMEBUFFER_OUTPUT );
+	PS_EXIT;
+}
+
+
+#endif

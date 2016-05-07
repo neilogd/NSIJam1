@@ -212,6 +212,7 @@
 			// Textures
 			"textures"		: {
 				"aHeightTex"	: "$(ScnTexture:textures.black)",
+				"aNoiseTex"		: "$(ScnTexture:textures.noise)",
 				"aLayer0Tex"	: "$(ScnTexture:textures.dirt)",
 				"aLayer1Tex"	: "$(ScnTexture:textures.grass)",
 				"aLayer2Tex"	: "$(ScnTexture:textures.rock)",
@@ -225,6 +226,13 @@
 			// Samplers
 			"samplers"		: {
 				"aHeightTex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				},
+
+				"aNoiseTex"	: {
 					"addressu" : "wrap",
 					"addressv" : "wrap",
 					"minfilter" : "linear_mipmap_linear",
@@ -285,7 +293,8 @@
 					"addressv" : "wrap",
 					"minfilter" : "linear_mipmap_linear",
 					"magfilter" : "linear"
-				}			},
+				}			
+			},
 
 			// New render state.
 			"renderstate" : {
@@ -311,6 +320,70 @@
 					"antialiasedlineenable" : true
 				}
 			}
+		},
+
+		{
+			"type"			: "ScnMaterial",
+			"name"			: "CloudPlane",
+
+			// Shader
+			"shader"		: "$(ScnShader:shaders.clouds)",
+
+			// Textures
+			"textures"		: {
+				"aClouds0Tex"	: "$(ScnTexture:textures.clouds0)",
+				"aClouds1Tex"	: "$(ScnTexture:textures.clouds1)"
+			},
+
+			// Samplers
+			"samplers"		: {
+				"aClouds0Tex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				},
+
+				"aClouds1Tex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				}
+			},
+
+			// New render state.
+			"renderstate" : {
+				"blendstate" : {
+					"rendertarget" : [
+						{
+							"enable" : true,
+							"srcblend" : "srcalpha",
+							"destblend" : "invsrcalpha",
+							"blendop" : "add",
+							"srcblendalpha" : "one",
+							"destblendalpha" : "one",
+							"blendopalpha" : "add",
+							"writemask" : 15
+						}
+					]
+				},
+
+				"depthstencilstate" : {
+					"depthtestenable" : true,
+					"depthwriteenable" : false,
+					"depthfunc" : "lessequal",
+					"stencilenable" : false
+				},
+
+				"rasteriserstate" : {
+					"fillmode" : "solid",
+					"cullmode" : "none",
+					"depthclipenable" : true,
+					"antialiasedlineenable" : true
+				}
+			}
 		}
+
 	]
 }
