@@ -237,7 +237,7 @@ GaShipComponent::GaShipComponent()
 	CurrentInstructions_(Instruction::NONE),
 	CurrentStep_(0),
 	ZSpeed_(0),
-	Speed_(5),
+	Speed_(15),
 	TimeOffset_(0)
 {
 }
