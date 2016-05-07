@@ -30,7 +30,7 @@
 
 				{
 					"$Class"				: "ScnModelComponent",
-					"model"					: "$(ScnModel:models.cube)",
+					"model"					: "$(ScnModel:models.EnemyShipA)",
 					"islit"					: true,
 					"scale"					: "1.0, 1.0, 1.0"
 				}
