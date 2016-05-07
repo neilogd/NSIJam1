@@ -313,6 +313,7 @@ void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 	GaShipProcessor::pImpl()->addPlayer(this);
 	if (!IsPlayer_) {
 		GaShipProcessor::pImpl()->requestInstructions(this);
+		ZSpeed_ = -20.0f;
 	}
 	Model_ = Parent->getComponentByType< ScnModelComponent >();
 	if( Model_ )

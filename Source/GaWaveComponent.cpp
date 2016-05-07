@@ -65,8 +65,12 @@ int GaWaveComponent::getEnemySpawnCount()
 
 float GaWaveComponent::getShipOffset(int Ship)
 {
+	float min = GameComponent_->getConstraintMin().x();
+	float max = GameComponent_->getConstraintMax().x();
 	float enemies = getEnemySpawnCount();
-	return ((float)Ship + 1.0f) / (enemies + 1.0f);
+	float d = ((float)Ship + 1.0f) / (enemies + 1.0f);
+
+	return min * (1.0f - d) + max * d;
 }
 
 void GaWaveComponent::update(float Tick)
