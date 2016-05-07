@@ -25,6 +25,17 @@
 				},
 
 				{
+					"$Class"				: "GaHeightmapComponent",
+					"texture"				: "$(ScnTexture:textures.heightmap)",
+					"material"				: "$(ScnMaterial:materials.heightmap)",
+					"heightmapuniformblock" : {
+						"heightmapdimensions" : 128.0,
+						"heightmapheight" : 64.0,
+						"heightmapoffset" : -64.0
+					}
+				},
+
+				{
 					"$Class"				: "GaGameComponent",
 
 					"playershiptemplates"			: [
