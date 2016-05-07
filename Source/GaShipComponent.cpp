@@ -190,6 +190,12 @@ void GaShipProcessor::initialise()
 		}
 		return evtRET_PASS;
 	});
+	OsCore::pImpl()->subscribe(gaEVT_START_WAVE, this,
+		[this](EvtID ID, const EvtBaseEvent& InEvent) {
+			this->InWave_ = true;
+			return evtRET_PASS;
+		}
+	);
 }
 
 //////////////////////////////////////////////////////////////////////////

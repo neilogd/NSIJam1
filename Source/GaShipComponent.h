@@ -6,6 +6,8 @@
 #include "System/Scene/ScnComponent.h"
 #include "System/Scene/ScnComponentProcessor.h"
 
+#include "GaEvents.h"
+
 #include <vector>
 
 enum class InstructionState 

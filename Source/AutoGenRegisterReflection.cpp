@@ -88,6 +88,7 @@
 #include "GaCameraComponent.h"
 #include "GaGameComponent.h"
 #include "GaShipComponent.h"
+#include "GaWaveComponent.h"
 void AutoGenRegisterReflection()
 {
 	MaAABB::StaticRegisterClass();
@@ -211,4 +212,5 @@ void AutoGenRegisterReflection()
 	GaCameraComponent::StaticRegisterClass();
 	GaGameComponent::StaticRegisterClass();
 	GaShipComponent::StaticRegisterClass();
+	GaWaveComponent::StaticRegisterClass();
 }
