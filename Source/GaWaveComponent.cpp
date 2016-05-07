@@ -98,6 +98,6 @@ void GaWaveComponent::EndWave()
 {
 	GaEventWave Event;
 	Event.StartWave_ = false;
-	OsCore::pImpl()->publish(gaEVT_START_WAVE, Event);
+	OsCore::pImpl()->publish(gaEVT_END_WAVE, Event);
 
 }

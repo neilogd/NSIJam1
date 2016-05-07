@@ -45,6 +45,8 @@ class WaveInstruction
 	Instruction Instruction_;
 };
 
+class GaShipComponent;
+
 //////////////////////////////////////////////////////////////////////////
 // GaShipProcessor
 class GaShipProcessor : 
@@ -56,15 +58,20 @@ public:
 	virtual ~GaShipProcessor();
 
 	void updateShips( const ScnComponentList& Components );	
+	void updateShipPositions( const ScnComponentList& Components );	
+	void processInput(BcU32 AsciiCode, InstructionState State);
 
+	void addPlayer(GaShipComponent* Player);
+	void requestInstructions(GaShipComponent* ShipComponent);
+	void startWave();
+	void endWave();
 protected:
 	void initialise() override;
 	void shutdown() override;
 
 private:
 	std::vector<std::vector<WaveInstruction>> InstructionSets_;
-	std::vector<WaveInstruction> NewInstructions_;
-	BcBool InWave_;
+	std::vector<GaShipComponent*> Players_;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -97,5 +104,5 @@ private:
 	class ScnModelComponent* Model_ = nullptr;
 	std::vector< BcU32 > GunNodeIndices_;
 	std::vector< BcU32 > EngineNodeIndices_;
-
+	std::vector< WaveInstruction > Instructions_;
 	};
