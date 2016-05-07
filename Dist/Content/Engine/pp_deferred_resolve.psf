@@ -86,6 +86,7 @@ PS_MAIN( pixelMain )
 	InLight.AttenuationCLQ_ = LightAttn_[ 0 ].xyz;
 	float3 TotalSurface = BRDF_Default( InLight, InMaterial, EyePosition, WorldPosition.xyz, GBufferNormal.xyz, ReflectionColour.xyz );
 	outputFrag[0] = float4( TotalSurface, 1.0 );
+	//outputFrag[0].xyz = GBufferNormal.xyz;
 	PS_EXIT;
 }
 

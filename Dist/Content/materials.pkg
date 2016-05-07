@@ -212,7 +212,14 @@
 			// Textures
 			"textures"		: {
 				"aHeightTex"	: "$(ScnTexture:textures.black)",
-				"aDiffuseTex"	: "$(ScnTexture:textures.white)"
+				"aLayer0Tex"	: "$(ScnTexture:textures.dirt)",
+				"aLayer1Tex"	: "$(ScnTexture:textures.grass)",
+				"aLayer2Tex"	: "$(ScnTexture:textures.rock)",
+				"aLayer3Tex"	: "$(ScnTexture:textures.snow)",
+				"aLayer0MatTex"	: "$(ScnTexture:textures.dirt_m)",
+				"aLayer1MatTex"	: "$(ScnTexture:textures.grass_m)",
+				"aLayer2MatTex"	: "$(ScnTexture:textures.rock_m)",
+				"aLayer3MatTex"	: "$(ScnTexture:textures.snow_m)"
 			},
 
 			// Samplers
@@ -224,13 +231,61 @@
 					"magfilter" : "linear"
 				},
 
-				"aDiffuseTex"	: {
+				"aLayer0Tex"	: {
 					"addressu" : "wrap",
 					"addressv" : "wrap",
 					"minfilter" : "linear_mipmap_linear",
 					"magfilter" : "linear"
-				}
-			},
+				},
+
+				"aLayer1Tex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				},
+
+				"aLayer2Tex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				},
+
+				"aLayer3Tex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				},
+
+				"aLayer0MatTex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				},
+
+				"aLayer1MatTex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				},
+
+				"aLayer2MatTex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				},
+
+				"aLayer3MatTex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				}			},
 
 			// New render state.
 			"renderstate" : {

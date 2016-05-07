@@ -17,6 +17,7 @@ VS_IN_END
 VS_OUT_BEGIN
 	DECLARE_OUT( float3, VsNormal, NORMAL );
 	DECLARE_OUT( float2, VsTexCoord0, TEXCOORD0 );
+	DECLARE_OUT( float, VsHeight, TEXCOORD1 );
 VS_OUT_END
 
 PSY_SAMPLER_2D( HeightTex );
@@ -33,6 +34,7 @@ VS_MAIN( vertexMain )
 
 	float Height = PSY_SAMPLE_2D( HeightTex, InTexCoord.xy ).x;
 	InPosition.y = Height * HeightmapHeight_ + HeightmapOffset_;
+	OUT( VsHeight ) = Height * HeightmapHeight_;
 
 	PSY_MAKE_WORLD_SPACE_VERTEX( WorldPosition, InPosition );
 	PSY_MAKE_CLIP_SPACE_VERTEX( OUT_POSITION, WorldPosition );
@@ -46,15 +48,15 @@ VS_MAIN( vertexMain )
 	float HeightB = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2( 0.0, -HeightmapUVScale_.x ) ).x;
 	float HeightT = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2( 0.0,  HeightmapUVScale_.x ) ).x;
 
-	InNormal.x = ( ( Height - HeightB ) + ( HeightT - Height ) ) * Scale;
-	InNormal.y = 0.1;
-	InNormal.z = ( ( Height - HeightL ) + ( HeightR - Height ) ) * Scale;
+	InNormal.x = ( ( Height - HeightR ) + ( HeightL - Height ) ) * Scale;
+	InNormal.y = HeightmapNormalTweak_;
+	InNormal.z = ( ( Height - HeightT ) + ( HeightB - Height ) ) * Scale;
 	InNormal.xyz = normalize( InNormal.xyz );
 
 	PSY_MAKE_WORLD_SPACE_NORMAL( Normal, InNormal );
 	OUT( VsNormal ) = Normal.xyz;
 
-	OUT( VsTexCoord0 ) = IN( InTexCoord_ ).xy;
+	OUT( VsTexCoord0 ) = IN( InTexCoord ).xy;
 
 	VS_EXIT;
 }
@@ -68,29 +70,67 @@ VS_MAIN( vertexMain )
 PS_IN_BEGIN
 	DECLARE_IN( float3, VsNormal, NORMAL );
 	DECLARE_IN( float2, VsTexCoord0, TEXCOORD0 );
-
+	DECLARE_IN( float, VsHeight, TEXCOORD1 );
 PS_IN_END
 #include <PsybrusOutput.psh>
 
 //////////////////////////////////////////////////////////////////////////
 // Samplers
-PSY_SAMPLER_2D( DiffuseTex );
 PSY_SAMPLER_CUBE( ReflectionTex );
+
+PSY_SAMPLER_2D( Layer0Tex );
+PSY_SAMPLER_2D( Layer1Tex );
+PSY_SAMPLER_2D( Layer2Tex );
+PSY_SAMPLER_2D( Layer3Tex );
+
+PSY_SAMPLER_2D( Layer0MatTex );
+PSY_SAMPLER_2D( Layer1MatTex );
+PSY_SAMPLER_2D( Layer2MatTex );
+PSY_SAMPLER_2D( Layer3MatTex );
 
 //////////////////////////////////////////////////////////////////////////
 // pixelAll
 void pixelAll( FRAMEBUFFER_INPUT )
 {
-	float4 Diffuse = PSY_SAMPLE_2D( DiffuseTex, IN( VsTexCoord0 ).xy );
+	float TexScale = 16.0;
+
+	float4 Layer0 = PSY_SAMPLE_2D( Layer0Tex, IN( VsTexCoord0 ).xy * TexScale );
+	float4 Layer1 = PSY_SAMPLE_2D( Layer1Tex, IN( VsTexCoord0 ).xy * TexScale );
+	float4 Layer2 = PSY_SAMPLE_2D( Layer2Tex, IN( VsTexCoord0 ).xy * TexScale );
+	float4 Layer3 = PSY_SAMPLE_2D( Layer3Tex, IN( VsTexCoord0 ).xy * TexScale * 4.0 );
+
+	float4 Layer1Mat = PSY_SAMPLE_2D( Layer1MatTex, IN( VsTexCoord0 ).xy * TexScale );
+	float4 Layer2Mat = PSY_SAMPLE_2D( Layer2MatTex, IN( VsTexCoord0 ).xy * TexScale );
+	float4 Layer3Mat = PSY_SAMPLE_2D( Layer3MatTex, IN( VsTexCoord0 ).xy * TexScale );
+	float4 Layer0Mat = PSY_SAMPLE_2D( Layer0MatTex, IN( VsTexCoord0 ).xy * TexScale * 4.0 );
+
 	float3 Normal = normalize( IN( VsNormal ) );
 
-	Material InMaterial;
-	InMaterial.Colour_ = float3( 1.0, 1.0, 1.0 ); // MaterialBaseColour_.xyz;
-	InMaterial.Metallic_ = 0.0; // MaterialMetallic_;
-	InMaterial.Specular_ = 0.1; // MaterialSpecular_;
-	InMaterial.Roughness_ = 0.8; // MaterialRoughness_;
+	float Height = IN( VsHeight );
+	float Layer0Blend = clamp( Height, 0.0, HeightmapLayer0Height_ ) / HeightmapLayer0Height_;
+	float Layer1Blend = clamp( Height, HeightmapLayer1Height_, HeightmapLayer1Height_ + 1.0 ) - HeightmapLayer1Height_;
+	float Layer2Blend = clamp( Height, HeightmapLayer2Height_, HeightmapLayer2Height_ + 1.0 ) - HeightmapLayer2Height_;
+	float Layer3Blend = clamp( Height, HeightmapLayer3Height_, HeightmapLayer3Height_ + 1.0 ) - HeightmapLayer3Height_;
 
-	writeFrag( FRAMEBUFFER_INTERNAL, Diffuse, Normal.xyz, float3( InMaterial.Metallic_, InMaterial.Specular_, InMaterial.Roughness_ ) );
+	float3 Diffuse = float3( 0.0, 0.0, 0.0 );
+	Diffuse = lerp( Diffuse, Layer0.xyz, Layer0Blend );
+	Diffuse = lerp( Diffuse, Layer1.xyz, Layer1Blend );
+	Diffuse = lerp( Diffuse, Layer2.xyz, Layer2Blend );
+	Diffuse = lerp( Diffuse, Layer3.xyz, Layer3Blend );
+
+	float3 MatTex = float3( 0.0, 0.0, 0.0 );
+	MatTex = lerp( MatTex, Layer0Mat.xyz, Layer0Blend );
+	MatTex = lerp( MatTex, Layer1Mat.xyz, Layer1Blend );
+	MatTex = lerp( MatTex, Layer2Mat.xyz, Layer2Blend );
+	MatTex = lerp( MatTex, Layer3Mat.xyz, Layer3Blend );
+
+	Material InMaterial;
+	InMaterial.Colour_ = Diffuse;
+	InMaterial.Metallic_ = MatTex.x;
+	InMaterial.Specular_ = MatTex.y;
+	InMaterial.Roughness_ = MatTex.z;
+
+	writeFrag( FRAMEBUFFER_INTERNAL, float4( InMaterial.Colour_, 1.0 ), Normal.xyz, float3( InMaterial.Metallic_, InMaterial.Specular_, InMaterial.Roughness_ ) );
 }
 
 //////////////////////////////////////////////////////////////////////////

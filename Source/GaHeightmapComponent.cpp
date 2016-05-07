@@ -26,7 +26,11 @@ void GaHeightmapUniformBlockData::StaticRegisterClass()
 		new ReField( "HeightmapOffset_", &GaHeightmapUniformBlockData::HeightmapOffset_ ),
 		new ReField( "HeightmapPositionOffset_", &GaHeightmapUniformBlockData::HeightmapPositionOffset_ ),
 		new ReField( "HeightmapUVOffset_", &GaHeightmapUniformBlockData::HeightmapUVOffset_ ),
-		new ReField( "HeightmapUnused_", &GaHeightmapUniformBlockData::HeightmapUnused_ ),
+		new ReField( "HeightmapLayer0Height_", &GaHeightmapUniformBlockData::HeightmapLayer0Height_ ),
+		new ReField( "HeightmapLayer1Height_", &GaHeightmapUniformBlockData::HeightmapLayer1Height_ ),
+		new ReField( "HeightmapLayer2Height_", &GaHeightmapUniformBlockData::HeightmapLayer2Height_ ),
+		new ReField( "HeightmapLayer3Height_", &GaHeightmapUniformBlockData::HeightmapLayer3Height_ ),
+		new ReField( "HeightmapNormalTweak_", &GaHeightmapUniformBlockData::HeightmapNormalTweak_ ),
 	};
 		
 	auto& Class = ReRegisterClass< GaHeightmapUniformBlockData >( Fields );
@@ -103,6 +107,11 @@ void GaHeightmapComponent::update( BcF32 Tick )
 		ImGui::SliderFloat( "Dimensions", &HeightmapUniformBlock_.HeightmapDimensions_, 1.0f, 256.0f, "%.3f", 2.0f );
 		ImGui::SliderFloat( "Height", &HeightmapUniformBlock_.HeightmapHeight_, 0.0f, 256.0f, "%.3f", 2.0f );
 		ImGui::SliderFloat( "Offset", &HeightmapUniformBlock_.HeightmapOffset_, -256.0f, 256.0f, "%.3f", 2.0f );
+		ImGui::SliderFloat( "Layer 0 Height", &HeightmapUniformBlock_.HeightmapLayer0Height_, 1.0f, 256.0f, "%.3f", 2.0f );
+		ImGui::SliderFloat( "Layer 1 Height", &HeightmapUniformBlock_.HeightmapLayer1Height_, 1.0f, 256.0f, "%.3f", 2.0f );
+		ImGui::SliderFloat( "Layer 2 Height", &HeightmapUniformBlock_.HeightmapLayer2Height_, 1.0f, 256.0f, "%.3f", 2.0f );
+		ImGui::SliderFloat( "Layer 3 Height", &HeightmapUniformBlock_.HeightmapLayer3Height_, 1.0f, 256.0f, "%.3f", 2.0f );
+		ImGui::SliderFloat( "Normal Tweak", &HeightmapUniformBlock_.HeightmapNormalTweak_, 0.0001f, 1.0f, "%.3f", 4.0f );
 		ImGui::SliderFloat( "Scroll Speed", &ScrollSpeed_, -256.0f, 256.0f, "%.3f", 2.0f );
 
 		ImGui::EndGroup();
@@ -127,18 +136,18 @@ void GaHeightmapComponent::update( BcF32 Tick )
 	{
 		HeightmapUniformBlock_.HeightmapPositionOffset_ -= PositionOffsetAmount;
 		HeightmapUniformBlock_.HeightmapUVOffset_ -= HeightmapUniformBlock_.HeightmapUVScale_.y();
-		if( HeightmapUniformBlock_.HeightmapUVOffset_ < -1.0f )
+		if( HeightmapUniformBlock_.HeightmapUVOffset_ < -256.0f )
 		{
-			HeightmapUniformBlock_.HeightmapUVOffset_ += 1.0f;
+			HeightmapUniformBlock_.HeightmapUVOffset_ += 256.0f;
 		}
 	}
 	while( HeightmapUniformBlock_.HeightmapPositionOffset_ < -PositionOffsetAmount )
 	{
 		HeightmapUniformBlock_.HeightmapPositionOffset_ += PositionOffsetAmount;
 		HeightmapUniformBlock_.HeightmapUVOffset_ += HeightmapUniformBlock_.HeightmapUVScale_.y();
-		if( HeightmapUniformBlock_.HeightmapUVOffset_ > 1.0f )
+		if( HeightmapUniformBlock_.HeightmapUVOffset_ > 256.0f )
 		{
-			HeightmapUniformBlock_.HeightmapUVOffset_ -= 1.0f;
+			HeightmapUniformBlock_.HeightmapUVOffset_ -= 256.0f;
 		}
 	}
 
@@ -322,6 +331,7 @@ class ScnViewRenderData* GaHeightmapComponent::createViewRenderData( class ScnVi
 	auto Program = Material_->getProgram( ShaderPermutation );
 	BcAssert( Program );
 	auto ProgramBindingDesc = Material_->getProgramBinding( ShaderPermutation );
+	
 	BcU32 HeightSlot = Program->findShaderResourceSlot( "aHeightTex" );
 	if( HeightSlot != BcErrorCode )
 	{
