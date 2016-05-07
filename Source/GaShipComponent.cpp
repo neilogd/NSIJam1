@@ -13,14 +13,18 @@
 GaShipProcessor::GaShipProcessor():
 	ScnComponentProcessor( {
 	ScnComponentProcessFuncEntry(
+		"Update Update",
+		ScnComponentPriority::DEFAULT_UPDATE,
+		std::bind(&GaShipProcessor::updatePlayers, this, std::placeholders::_1)),
+	ScnComponentProcessFuncEntry(
+		"Update Enemies",
+		ScnComponentPriority::DEFAULT_UPDATE + 10,
+		std::bind(&GaShipProcessor::updateEnemies, this, std::placeholders::_1)),
+	ScnComponentProcessFuncEntry(
 		"Update Ships",
-			ScnComponentPriority::DEFAULT_UPDATE,
-			std::bind(&GaShipProcessor::updateShips, this, std::placeholders::_1)),
-		ScnComponentProcessFuncEntry(
-			"Update Ships",
-			ScnComponentPriority::DEFAULT_UPDATE + 10,
-			std::bind(&GaShipProcessor::updateShipPositions, this, std::placeholders::_1)),
-		} )
+		ScnComponentPriority::DEFAULT_UPDATE + 20,
+		std::bind(&GaShipProcessor::updateShipPositions, this, std::placeholders::_1)),
+	} )
 {
 	InstructionSets_.push_back(std::vector<WaveInstruction>());
 	InstructionSets_[0].push_back(WaveInstruction(0, InstructionState::SWITCH_ON, Instruction::MOVE_LEFT));
@@ -45,7 +49,38 @@ GaShipProcessor::~GaShipProcessor()
 
 //////////////////////////////////////////////////////////////////////////
 // updateShips
-void GaShipProcessor::updateShips(const ScnComponentList& Components)
+void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
+{
+	static float Time = 0.0f;
+	static float dt = 1 / 60.0f;
+	Time += dt;
+	// Iterate over all the ships.
+	for (BcU32 Idx = 0; Idx < Players_.size(); ++Idx)
+	{
+		auto* ShipComponent = Players_[Idx];
+		int Set = ShipComponent->InstructionSet_;
+		int Step = ShipComponent->CurrentStep_;
+		// Update AI Ships setting. This will currently eventually throw an error
+		ShipComponent->TimeOffset_ += dt;
+		while (ShipComponent->Instructions_.size() > ShipComponent->CurrentStep_) {
+			ShipComponent->Instructions_[ShipComponent->CurrentStep_].Offset_ = ShipComponent->TimeOffset_;
+			if (ShipComponent->Instructions_[ShipComponent->CurrentStep_].State_ == InstructionState::SWITCH_ON)
+			{
+				ShipComponent->CurrentInstructions_ |= ShipComponent->Instructions_[ShipComponent->CurrentStep_].Instruction_;
+			}
+			else
+			{
+				Instruction inverse = Instruction::ALL ^ ShipComponent->Instructions_[ShipComponent->CurrentStep_].Instruction_;
+				ShipComponent->CurrentInstructions_ &= inverse;
+			}
+			ShipComponent->CurrentStep_++;
+		}
+		
+	}
+}
+//////////////////////////////////////////////////////////////////////////
+// updateShips
+void GaShipProcessor::updateEnemies(const ScnComponentList& Components)
 {
 	static float Time = 0.0f;
 	static float dt = 1 / 60.0f;
@@ -62,41 +97,26 @@ void GaShipProcessor::updateShips(const ScnComponentList& Components)
 		ShipComponent->TimeOffset_ += dt;
 		if (ShipComponent->IsPlayer_)
 		{
-			while (ShipComponent->Instructions_.size() > ShipComponent->CurrentStep_) {
-				ShipComponent->Instructions_[ShipComponent->CurrentStep_].Offset_ = ShipComponent->TimeOffset_;
-				if (ShipComponent->Instructions_[ShipComponent->CurrentStep_].State_ == InstructionState::SWITCH_ON)
-				{
-					ShipComponent->CurrentInstructions_ |= ShipComponent->Instructions_[ShipComponent->CurrentStep_].Instruction_;
-				}
-				else
-				{
-					Instruction inverse = Instruction::ALL ^ ShipComponent->Instructions_[ShipComponent->CurrentStep_].Instruction_;
-					ShipComponent->CurrentInstructions_ &= inverse;
-				}
-				ShipComponent->CurrentStep_++;
-			}
+			continue;
 		}
-		else
-		{
-			while (InstructionSets_[Set][Step].Offset_ < ShipComponent->TimeOffset_) {
-				if (InstructionSets_[Set][Step].State_ == InstructionState::SWITCH_ON)
-				{
-					ShipComponent->CurrentInstructions_ |= InstructionSets_[Set][Step].Instruction_;
-				}
-				else
-				{
-					Instruction inverse = Instruction::ALL ^ InstructionSets_[Set][Step].Instruction_;
-					ShipComponent->CurrentInstructions_ &= inverse;
-				}
-				ShipComponent->CurrentStep_++;
-				if (ShipComponent->CurrentStep_ == InstructionSets_[Set].size())
-				{
-					ShipComponent->CurrentStep_ = 0;
-					ShipComponent->TimeOffset_ = 2;
-					ShipComponent->CurrentInstructions_ = Instruction::NONE;
-				}
-				Step = ShipComponent->CurrentStep_;
+		while (InstructionSets_[Set][Step].Offset_ < ShipComponent->TimeOffset_) {
+			if (InstructionSets_[Set][Step].State_ == InstructionState::SWITCH_ON)
+			{
+				ShipComponent->CurrentInstructions_ |= InstructionSets_[Set][Step].Instruction_;
 			}
+			else
+			{
+				Instruction inverse = Instruction::ALL ^ InstructionSets_[Set][Step].Instruction_;
+				ShipComponent->CurrentInstructions_ &= inverse;
+			}
+			ShipComponent->CurrentStep_++;
+			if (ShipComponent->CurrentStep_ == InstructionSets_[Set].size())
+			{
+				ShipComponent->CurrentStep_ = 0;
+				ShipComponent->TimeOffset_ = -2;
+				ShipComponent->CurrentInstructions_ = Instruction::NONE;
+			}
+			Step = ShipComponent->CurrentStep_;
 		}
 	}
 }
@@ -293,6 +313,7 @@ void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 	GaShipProcessor::pImpl()->addPlayer(this);
 	if (!IsPlayer_) {
 		GaShipProcessor::pImpl()->requestInstructions(this);
+		ZSpeed_ = -20.0f;
 	}
 	Model_ = Parent->getComponentByType< ScnModelComponent >();
 	if( Model_ )

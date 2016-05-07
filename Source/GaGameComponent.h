@@ -21,8 +21,14 @@ public:
 	void onAttach( ScnEntityWeakRef Parent ) override;
 	void onDetach( ScnEntityWeakRef Parent ) override;
 	
-private:
+	MaVec3d getConstraintMin();
+	MaVec3d getConstraintMax();
+
 	std::vector< ScnEntityRef > PlayerShipTemplates_;
 	std::vector< ScnEntityRef > EnemyShipTemplates_;
 
+private:
+	float MaxX_;
+	float MaxZ_;
+	float MinZ_;
 };

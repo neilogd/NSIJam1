@@ -37,7 +37,9 @@
 
 				{
 					"$Class"				: "GaGameComponent",
-
+					"maxX" 					: -100,
+					"minZ"					: -100,
+					"maxZ"					: 100,
 					"playershiptemplates"			: [
 						"$(ScnEntity:ships.PlayerShip)"
 					],
