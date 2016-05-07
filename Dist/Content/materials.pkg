@@ -198,6 +198,64 @@
 					"slopescaleddepthbias" : 0.0
 				}
 			}
+		},
+
+
+
+		{
+			"type"			: "ScnMaterial",
+			"name"			: "heightmap",
+
+			// Shader
+			"shader"		: "$(ScnShader:shaders.heightmap)",
+
+			// Textures
+			"textures"		: {
+				"aHeightTex"	: "$(ScnTexture:textures.black)",
+				"aDiffuseTex"	: "$(ScnTexture:textures.white)"
+			},
+
+			// Samplers
+			"samplers"		: {
+				"aHeightTex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				},
+
+				"aDiffuseTex"	: {
+					"addressu" : "wrap",
+					"addressv" : "wrap",
+					"minfilter" : "linear_mipmap_linear",
+					"magfilter" : "linear"
+				}
+			},
+
+			// New render state.
+			"renderstate" : {
+				"blendstate" : {
+					"rendertarget" : [
+						{
+							"enable" : false
+						}
+					]
+				},
+
+				"depthstencilstate" : {
+					"depthtestenable" : true,
+					"depthwriteenable" : true,
+					"depthfunc" : "lessequal",
+					"stencilenable" : false
+				},
+
+				"rasteriserstate" : {
+					"fillmode" : "solid",
+					"cullmode" : "none",
+					"depthclipenable" : true,
+					"antialiasedlineenable" : true
+				}
+			}
 		}
 	]
 }

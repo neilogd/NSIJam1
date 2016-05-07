@@ -1,0 +1,104 @@
+#include <Psybrus.psh>
+#include <PsybrusLighting.psh>
+
+#include <UniformHeightmap.psh>
+#include <UniformLight.psh>
+#include <UniformMaterial.psh>
+
+//////////////////////////////////////////////////////////////////////////
+// Vertex shader
+#if VERTEX_SHADER
+
+VS_IN_BEGIN
+	DECLARE_IN( float2, InPosition_, POSITION );
+	DECLARE_IN( float2, InTexCoord_, TEXCOORD0 );
+VS_IN_END
+
+VS_OUT_BEGIN
+	DECLARE_OUT( float3, VsNormal, NORMAL );
+	DECLARE_OUT( float2, VsTexCoord0, TEXCOORD0 );
+VS_OUT_END
+
+PSY_SAMPLER_2D( HeightTex );
+
+VS_MAIN( vertexMain )
+{
+	VS_ENTER;
+	float4 WorldPosition;
+
+	float2 InFlatPosition = IN( InPosition_ ) * HeightmapDimensions_;
+
+	float4 InPosition = float4( InFlatPosition.x, 0.0, InFlatPosition.y, 1.0 );
+
+	float Height = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy ).x;
+	InPosition.y = Height * HeightmapHeight_ + HeightmapOffset_;
+
+	PSY_MAKE_WORLD_SPACE_VERTEX( WorldPosition, InPosition );
+	PSY_MAKE_CLIP_SPACE_VERTEX( OUT_POSITION, WorldPosition );
+
+	float4 Normal;
+	float4 InNormal = float4( 0.0, 1.0, 0.0, 0.0 );
+	
+	float Scale = HeightmapHeight_ / HeightmapDimensions_;
+	float HeightL = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy + float2( -HeightmapUVScale_.x, 0.0 ) ).x;
+	float HeightR = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy + float2(  HeightmapUVScale_.x, 0.0 ) ).x;
+	float HeightB = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy + float2( 0.0, -HeightmapUVScale_.x ) ).x;
+	float HeightT = PSY_SAMPLE_2D( HeightTex, IN( InTexCoord_ ).xy + float2( 0.0,  HeightmapUVScale_.x ) ).x;
+
+	InNormal.x = ( ( Height - HeightB ) + ( HeightT - Height ) ) * Scale;
+	InNormal.y = 0.1;
+	InNormal.z = ( ( Height - HeightL ) + ( HeightR - Height ) ) * Scale;
+	InNormal.xyz = normalize( InNormal.xyz );
+
+	PSY_MAKE_WORLD_SPACE_NORMAL( Normal, InNormal );
+	OUT( VsNormal ) = Normal.xyz;
+
+	OUT( VsTexCoord0 ) = IN( InTexCoord_ ).xy;
+
+	VS_EXIT;
+}
+
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+// Pixel shader
+#if PIXEL_SHADER
+
+PS_IN_BEGIN
+	DECLARE_IN( float3, VsNormal, NORMAL );
+	DECLARE_IN( float2, VsTexCoord0, TEXCOORD0 );
+
+PS_IN_END
+#include <PsybrusOutput.psh>
+
+//////////////////////////////////////////////////////////////////////////
+// Samplers
+PSY_SAMPLER_2D( DiffuseTex );
+PSY_SAMPLER_CUBE( ReflectionTex );
+
+//////////////////////////////////////////////////////////////////////////
+// pixelAll
+void pixelAll( FRAMEBUFFER_INPUT )
+{
+	float4 Diffuse = PSY_SAMPLE_2D( DiffuseTex, IN( VsTexCoord0 ).xy );
+	float3 Normal = normalize( IN( VsNormal ) );
+
+	Material InMaterial;
+	InMaterial.Colour_ = float3( 1.0, 1.0, 1.0 ); // MaterialBaseColour_.xyz;
+	InMaterial.Metallic_ = 0.2; // MaterialMetallic_;
+	InMaterial.Specular_ = 0.0; // MaterialSpecular_;
+	InMaterial.Roughness_ = 0.8; // MaterialRoughness_;
+
+	writeFrag( FRAMEBUFFER_INTERNAL, Diffuse, Normal.xyz, float3( InMaterial.Metallic_, InMaterial.Specular_, InMaterial.Roughness_ ) );
+}
+
+//////////////////////////////////////////////////////////////////////////
+// pixelMain
+PS_MAIN( pixelMain )
+{
+	PS_ENTER;
+	pixelAll( FRAMEBUFFER_OUTPUT );
+	PS_EXIT;
+}
+
+#endif

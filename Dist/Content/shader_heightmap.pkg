@@ -1,0 +1,44 @@
+{
+	"resources" : [
+		{
+			"type"			: "ScnShader",
+			"name"			: "heightmap",
+			"sources" 		: {
+				"GLSL_330" : "Content/Engine/heightmap.psf",
+				"GLSL_ES_100" : "Content/Engine/heightmap.psf"
+			},
+
+			"@(gles)" : {
+				"sources" 		: {
+					"GLSL_ES_100" : "Content/Engine/heightmap.psf"
+				}
+			},
+
+			"@(html5)" : {
+				"sources" 		: {
+					"GLSL_ES_100" : "Content/Engine/heightmap.psf"
+				}
+			},
+
+			"includepermutations" : [
+				"RENDER_DEFERRED",
+				"PASS_OPAQUE",
+				"MESH_STATIC_3D",
+				"LIGHTING_DIFFUSE"
+			],
+
+			"excludepermutations" : [
+				"MESH_STATIC_2D",
+				"MESH_SKINNED_3D",
+				"MESH_PARTICLE_3D",
+				"MESH_INSTANCED_3D"
+			],
+
+			"entrypoints"		: {
+				"vertex" : 		"vertexMain",
+				"pixel" :		"pixelMain"
+			}
+		}
+	]
+}
+

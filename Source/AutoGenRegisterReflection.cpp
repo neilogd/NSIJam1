@@ -87,6 +87,7 @@
 #include "System/SysSystem.h"
 #include "GaCameraComponent.h"
 #include "GaGameComponent.h"
+#include "GaHeightmapComponent.h"
 #include "GaShipComponent.h"
 void AutoGenRegisterReflection()
 {
@@ -210,5 +211,7 @@ void AutoGenRegisterReflection()
 	SysSystem::StaticRegisterClass();
 	GaCameraComponent::StaticRegisterClass();
 	GaGameComponent::StaticRegisterClass();
+	GaHeightmapUniformBlockData::StaticRegisterClass();
+	GaHeightmapComponent::StaticRegisterClass();
 	GaShipComponent::StaticRegisterClass();
 }

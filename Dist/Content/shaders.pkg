@@ -30,6 +30,11 @@
 			"target"		: "$(ScnShader:shader_textured_normal_mapped.textured_normal_mapped_mask)"
 		},
 
+		{
+			"type"			: "CsRedirector",
+			"name"			: "heightmap",
+			"target"		: "$(ScnShader:shader_heightmap.heightmap)"
+		},
 
 		{
 			"type"			: "ScnShader",

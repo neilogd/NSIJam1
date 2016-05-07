@@ -4,8 +4,6 @@
 			"type"			: "ScnShader",
 			"name"			: "textured",
 			"sources" 		: {
-				"D3D11_4_0" : "Content/Engine/textured.psf",
-				"GLSL_430" : "Content/Engine/textured.psf",
 				"GLSL_330" : "Content/Engine/textured.psf",
 				"GLSL_ES_100" : "Content/Engine/textured.psf"
 			},
@@ -44,8 +42,6 @@
 			"type"			: "ScnShader",
 			"name"			: "textured_mask",
 			"sources" 		: {
-				"D3D11_4_0" : "Content/Engine/textured.psf",
-				"GLSL_430" : "Content/Engine/textured.psf",
 				"GLSL_330" : "Content/Engine/textured.psf",
 				"GLSL_ES_100" : "Content/Engine/textured.psf"
 			},

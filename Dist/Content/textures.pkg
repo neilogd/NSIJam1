@@ -122,6 +122,17 @@
 			"@(html5)" : {
 				"format" : "DXT1"
 			}
+		},
+
+		////////////////////////////////////////////////////////////////////////
+		// Heightmap textures.
+		{
+			"type"			: "ScnTexture",
+			"name"			: "heightmap",
+
+			"source"		: "Content/Source/Textures/heightmap.png",
+			"format" : "R8G8B8A"
 		}
+
 	]
 }
