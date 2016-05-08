@@ -226,7 +226,7 @@ void GaShipProcessor::fireWeapons(const ScnComponentList& Components)
 				{
 					auto Emitter = ShipComponent->getComponentByType< ScnSoundEmitterComponent >();
 					BcAssert( Emitter );
-					Emitter->play( ShipComponent->LaunchSounds_[ BcRandom::Global.randRange( 0, ShipComponent->LaunchSounds_.size() - 1 ) ], false );
+					Emitter->playOneShot( ShipComponent->LaunchSounds_[ BcRandom::Global.randRange( 0, ShipComponent->LaunchSounds_.size() - 1 ) ] );
 				}
 			}
 			else

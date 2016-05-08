@@ -67,4 +67,5 @@ private:
 	class ScnModelComponent* Model_ = nullptr;
 	GaShipComponent* Ship_ = nullptr;
 	ScnSoundRef EngineSound_;
+	std::vector< ScnSoundRef > ExplodeSounds_;
 };
