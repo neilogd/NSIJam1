@@ -6,6 +6,8 @@
 #include "System/Scene/ScnComponent.h"
 #include "System/Scene/ScnComponentProcessor.h"
 
+#include "System/Scene/Sound/ScnSound.h"
+
 #include "GaEvents.h"
 
 #include <vector>
@@ -118,4 +120,7 @@ private:
 	std::vector< BcU32 > GunNodeIndices_;
 	std::vector< BcU32 > EngineNodeIndices_;
 	std::vector< WaveInstruction > Instructions_;
+
+	ScnSoundRef EngineSound_;
+	std::vector< ScnSoundRef > LaunchSounds_;
 };

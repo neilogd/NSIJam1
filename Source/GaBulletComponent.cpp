@@ -9,6 +9,9 @@
 #include "System/SysKernel.h"
 #include "GaGameComponent.h"
 #include "GaShipComponent.h"
+
+#include "System/Scene/Sound/ScnSoundEmitter.h"
+
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaBulletProcessor::GaBulletProcessor():
@@ -148,7 +151,10 @@ void GaBulletComponent::StaticRegisterClass()
 	{
 		new ReField( "Speed_", &GaBulletComponent::Speed_, bcRFF_IMPORTER ),
 		new ReField( "Direction_", &GaBulletComponent::Direction_, bcRFF_IMPORTER ),
+		new ReField( "EngineSound_", &GaBulletComponent::EngineSound_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY ),
+
 		new ReField( "Ship_", &GaBulletComponent::Ship_, bcRFF_TRANSIENT ),
+		
 	};
 	
 	using namespace std::placeholders;
@@ -175,6 +181,13 @@ void GaBulletComponent::onAttach( ScnEntityWeakRef Parent )
 {
 	Super::onAttach( Parent );
 	Model_ = Parent->getComponentByType< ScnModelComponent >();
+
+	if( EngineSound_ )
+	{
+		auto Emitter = getComponentByType< ScnSoundEmitterComponent >();
+		BcAssert( Emitter );
+		Emitter->play( EngineSound_, true );
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

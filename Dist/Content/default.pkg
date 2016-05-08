@@ -88,6 +88,12 @@
 						},
 
 						{
+							"$Class"				: "ScnSoundEmitterComponent",
+							"velocitymultiplier"	: 0.0,
+							"maxvelocity"			: 0.0
+						},
+
+						{
 							"$Class"				: "ScnLightComponent",
 
 							"diffusecolour"			: "0.5, 0.5, 0.5, 1.0",

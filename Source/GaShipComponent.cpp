@@ -6,9 +6,11 @@
 #include "System/SysKernel.h"
 #include "System/Os/OsCore.h"
 #include "System/Os/OsEvents.h"
+#include "System/Scene/Sound/ScnSoundEmitter.h"
 
 #include "GaGameComponent.h"
 #include "GaBulletComponent.h"
+
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipProcessor::GaShipProcessor():
@@ -215,6 +217,13 @@ void GaShipProcessor::fireWeapons(const ScnComponentList& Components)
 					bullet->setDirection(MaVec3d(0, 0, Z));
 					bullet->setShip(ShipComponent);
 				}
+
+				if( ShipComponent->LaunchSounds_.size() > 0 )
+				{
+					auto Emitter = ShipComponent->getComponentByType< ScnSoundEmitterComponent >();
+					BcAssert( Emitter );
+					Emitter->play( ShipComponent->LaunchSounds_[ BcRandom::Global.randRange( 0, ShipComponent->LaunchSounds_.size() - 1 ) ], false );
+				}
 			}
 			else
 			{
@@ -377,6 +386,8 @@ void GaShipComponent::StaticRegisterClass()
 		new ReField( "EngineNodeIndices_", &GaShipComponent::EngineNodeIndices_, bcRFF_TRANSIENT ),
 		new ReField( "FireRate_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
 		new ReField( "TimeToShoot_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
+		new ReField( "EngineSound_", &GaShipComponent::EngineSound_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY),
+		new ReField( "LaunchSounds_", &GaShipComponent::LaunchSounds_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY),
 		//new ReField( "Score_", &GaShipComponent::Score_, bcRFF_IMPORTER),
 	};
 	
@@ -442,6 +453,13 @@ void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 		PSY_LOG( "GaShipComponent: Unable to find a model component on entity \"%s\"", Parent->getFullName().c_str() );
 	}
 	TimeToShoot_ = BcRandom::Global.randRealRange(0.0f, 0.5f);
+
+	if( EngineSound_ )
+	{
+		auto Emitter = getComponentByType< ScnSoundEmitterComponent >();
+		BcAssert( Emitter );
+		Emitter->play( EngineSound_, true );
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
