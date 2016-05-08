@@ -30,7 +30,11 @@ GaShipProcessor::GaShipProcessor():
 	ScnComponentProcessFuncEntry(
 		"Fire Weapons!",
 		ScnComponentPriority::DEFAULT_UPDATE + 30,
-		std::bind(&GaShipProcessor::fireWeapons, this, std::placeholders::_1))
+		std::bind(&GaShipProcessor::fireWeapons, this, std::placeholders::_1)),
+	ScnComponentProcessFuncEntry(
+		"Collide Ship With Players",
+		ScnComponentPriority::DEFAULT_UPDATE + 40,
+		std::bind(&GaShipProcessor::collideShipsWithPlayer, this, std::placeholders::_1))
 	} )
 {
 	InstructionSets_.push_back(std::vector<WaveInstruction>());
@@ -244,6 +248,39 @@ void GaShipProcessor::fireWeapons(const ScnComponentList& Components)
 			{
 				ShipComponent->TimeToShoot_ = ShipComponent->FireRate_;
 			}
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// collideShipsWithPlayer
+void GaShipProcessor::collideShipsWithPlayer(const ScnComponentList& Components)
+{
+	float dt = SysKernel::pImpl()->getFrameTime();
+	// Iterate over all the ships.
+	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
+	{
+		auto Component = Components[Idx];
+		BcAssert(Component->isTypeOf< GaShipComponent >());
+		auto* ShipComponent = static_cast< GaShipComponent* >(Component.get());
+		MaVec3d position = ShipComponent->getParentEntity()->getWorldPosition();
+
+		for (int i = 0; i < Players_.size(); ++i) {
+			if (Players_[i] == nullptr)
+				continue;
+			if (Players_[i] == ShipComponent)
+				continue;
+
+			MaVec3d shipPos = Players_[i]->getParentEntity()->getWorldPosition();
+			MaVec3d dif = position - shipPos;
+			dif.y(0);
+			if (dif.magnitude() < 5.0f)
+			{
+				GaTitleProcessor::pImpl()->showTitle();
+				GaShipProcessor::pImpl()->removePlayer(Ship);
+				ScnCore::pImpl()->removeEntity(ShipComponent->getParentEntity()->getParentEntity());
+			}
+
 		}
 	}
 }
