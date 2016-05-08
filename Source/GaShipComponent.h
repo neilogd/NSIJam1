@@ -117,6 +117,10 @@ private:
 	float TimeToShoot_;
 	float Score_ = 0.0f;
 
+	MaVec3d ActualPosition_;
+
+	MaVec3d TargetPosition_;
+
 	class ScnModelComponent* Model_ = nullptr;
 	std::vector< BcU32 > GunNodeIndices_;
 	std::vector< BcU32 > EngineNodeIndices_;

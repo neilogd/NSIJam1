@@ -162,7 +162,7 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 		movement.normalise();
 		movement.x(movement.x() * ShipComponent->Speed_);
 		movement.z(movement.z() * ShipComponent->Speed_ + ShipComponent->ZSpeed_);
-		MaVec3d oldPos = ShipComponent->getParentEntity()->getLocalPosition();
+		MaVec3d oldPos = ShipComponent->TargetPosition_;
 		MaVec3d newPos = oldPos + movement * dt;
 
 		if (newPos.x() < MinConstraint_.x())
@@ -192,6 +192,9 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 			}
 		}
 
+		ShipComponent->TargetPosition_ = newPos;
+		ShipComponent->ActualPosition_ = ShipComponent->ActualPosition_ * 0.9f + ShipComponent->TargetPosition_ * 0.1f;
+
 		MaMat4d Rotation;
 
 		BcF32 Rot = std::sin( Timer_ * 0.2f ) + std::sin( Timer_ ) + std::sin( Timer_ * 2.2f ) * 0.2f;
@@ -206,7 +209,7 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 		}
 
 		ShipComponent->getParentEntity()->setLocalMatrix( Rotation );
-		ShipComponent->getParentEntity()->setLocalPosition(newPos);
+		ShipComponent->getParentEntity()->setLocalPosition(ShipComponent->ActualPosition_);
 
 
 		// emit particles
@@ -535,6 +538,9 @@ void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 
 	Additive_ = getComponentAnyParentByType< ScnParticleSystemComponent >( "Additive" );
 	Subtractive_ = getComponentAnyParentByType< ScnParticleSystemComponent >( "Subtractive" );
+
+	ActualPosition_ = Parent->getLocalPosition();
+	TargetPosition_ = Parent->getLocalPosition();
 }
 
 //////////////////////////////////////////////////////////////////////////
