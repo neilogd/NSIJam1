@@ -14,6 +14,9 @@
 #include "Base/BcProfiler.h"
 #include "Base/BcRandom.h"
 
+#include "GaBulletComponent.h"
+#include "GaShipComponent.h"
+
 //////////////////////////////////////////////////////////////////////////
 // Define resource internals.
 REFLECTION_DEFINE_DERIVED( GaGameComponent );
@@ -108,6 +111,8 @@ void GaGameComponent::update( BcF32 Tick )
 void GaGameComponent::onAttach( ScnEntityWeakRef Parent )
 {
 	Super::onAttach( Parent );
+	GaShipProcessor::pImpl()->registerGame(this);
+	GaBulletProcessor::pImpl()->registerGame(this);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -116,4 +121,6 @@ void GaGameComponent::onAttach( ScnEntityWeakRef Parent )
 void GaGameComponent::onDetach( ScnEntityWeakRef Parent )
 {
 	Super::onDetach( Parent );
+	GaShipProcessor::pImpl()->deregisterGame(this);
+	GaBulletProcessor::pImpl()->deregisterGame(this);
 }

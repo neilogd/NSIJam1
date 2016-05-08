@@ -27,9 +27,16 @@ public:
 
 	void StartWave();
 	void EndWave();
+
+	void removeShip();
 private:
 	friend class GaWaveProcessor;
 	int CurrentWave_;
 	GaGameComponent* GameComponent_;
+
+	int ShipCount_;
+	float NewWaveCountdown_;
+	BcBool CountdownWave_;
+	float WaveCountdownTime_;
 	
 };

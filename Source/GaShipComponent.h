@@ -46,7 +46,7 @@ class WaveInstruction
 };
 
 class GaShipComponent;
-
+class GaGameComponent;
 //////////////////////////////////////////////////////////////////////////
 // GaShipProcessor
 class GaShipProcessor : 
@@ -59,13 +59,18 @@ public:
 
 	void updatePlayers(const ScnComponentList& Components);
 	void updateEnemies( const ScnComponentList& Components );
-	void updateShipPositions( const ScnComponentList& Components );	
+	void updateShipPositions(const ScnComponentList& Components);
+	void fireWeapons(const ScnComponentList& Components);
 	void processInput(BcU32 AsciiCode, InstructionState State);
 
 	void addPlayer(GaShipComponent* Player);
 	void requestInstructions(GaShipComponent* ShipComponent);
 	void startWave();
 	void endWave();
+
+	void registerGame(GaGameComponent* Game);
+	void deregisterGame(GaGameComponent* Game);
+
 protected:
 	void initialise() override;
 	void shutdown() override;
@@ -73,6 +78,9 @@ protected:
 private:
 	std::vector<std::vector<WaveInstruction>> InstructionSets_;
 	std::vector<GaShipComponent*> Players_;
+	MaVec3d MinConstraint_;
+	MaVec3d MaxConstraint_;
+	GaGameComponent* GameComponent_;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -101,9 +109,11 @@ private:
 	float ZSpeed_;
 
 	float TimeOffset_;
+	float FireRate_;
+	float TimeToShoot_;
 
 	class ScnModelComponent* Model_ = nullptr;
 	std::vector< BcU32 > GunNodeIndices_;
 	std::vector< BcU32 > EngineNodeIndices_;
 	std::vector< WaveInstruction > Instructions_;
-	};
+};

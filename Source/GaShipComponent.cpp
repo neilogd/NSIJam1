@@ -3,17 +3,18 @@
 #include "Base/BcRandom.h"
 #include "System/Scene/ScnEntity.h"
 #include "System/Scene/Rendering/ScnModel.h"
-
+#include "System/SysKernel.h"
 #include "System/Os/OsCore.h"
 #include "System/Os/OsEvents.h"
 
-
+#include "GaGameComponent.h"
+#include "GaBulletComponent.h"
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipProcessor::GaShipProcessor():
 	ScnComponentProcessor( {
 	ScnComponentProcessFuncEntry(
-		"Update Update",
+		"Update Player",
 		ScnComponentPriority::DEFAULT_UPDATE,
 		std::bind(&GaShipProcessor::updatePlayers, this, std::placeholders::_1)),
 	ScnComponentProcessFuncEntry(
@@ -21,9 +22,13 @@ GaShipProcessor::GaShipProcessor():
 		ScnComponentPriority::DEFAULT_UPDATE + 10,
 		std::bind(&GaShipProcessor::updateEnemies, this, std::placeholders::_1)),
 	ScnComponentProcessFuncEntry(
-		"Update Ships",
+		"Move Ships",
 		ScnComponentPriority::DEFAULT_UPDATE + 20,
 		std::bind(&GaShipProcessor::updateShipPositions, this, std::placeholders::_1)),
+	ScnComponentProcessFuncEntry(
+		"Fire Weapons!",
+		ScnComponentPriority::DEFAULT_UPDATE + 30,
+		std::bind(&GaShipProcessor::fireWeapons, this, std::placeholders::_1))
 	} )
 {
 	InstructionSets_.push_back(std::vector<WaveInstruction>());
@@ -51,9 +56,7 @@ GaShipProcessor::~GaShipProcessor()
 // updateShips
 void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
 {
-	static float Time = 0.0f;
-	static float dt = 1 / 60.0f;
-	Time += dt;
+	float dt = SysKernel::pImpl()->getFrameTime();
 	// Iterate over all the ships.
 	for (BcU32 Idx = 0; Idx < Players_.size(); ++Idx)
 	{
@@ -82,9 +85,7 @@ void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
 // updateShips
 void GaShipProcessor::updateEnemies(const ScnComponentList& Components)
 {
-	static float Time = 0.0f;
-	static float dt = 1 / 60.0f;
-	Time += dt;
+	float dt = SysKernel::pImpl()->getFrameTime();
 	// Iterate over all the ships.
 	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
 	{
@@ -125,9 +126,7 @@ void GaShipProcessor::updateEnemies(const ScnComponentList& Components)
 // updateShipPositions
 void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 {
-	static float Time = 0.0f;
-	static float dt = 1 / 60.0f;
-	Time += dt;
+	float dt = SysKernel::pImpl()->getFrameTime();
 	// Iterate over all the ships.
 	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
 	{
@@ -150,11 +149,76 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 		movement.normalise();
 		movement.x(movement.x() * ShipComponent->Speed_);
 		movement.z(movement.z() * ShipComponent->Speed_ + ShipComponent->ZSpeed_);
-		MaVec3d newPos = ShipComponent->getParentEntity()->getWorldPosition() + movement * dt;
+		MaVec3d oldPos = ShipComponent->getParentEntity()->getWorldPosition();
+		MaVec3d newPos = oldPos + movement * dt;
+
+		if (newPos.x() < MinConstraint_.x())
+			newPos.x(MinConstraint_.x());
+		else if (newPos.x() > MaxConstraint_.x())
+			newPos.x(MaxConstraint_.x());
+		if (newPos.z() > MaxConstraint_.z())
+		{
+			if (ShipComponent->IsPlayer_)
+			{
+				newPos.z(MaxConstraint_.z());
+			}
+			else
+			{
+				newPos.z(oldPos.z() + ShipComponent->ZSpeed_);
+			}
+		}
+		if (newPos.z() < MinConstraint_.z())
+		{
+			if (ShipComponent->IsPlayer_)
+			{
+				newPos.z(MinConstraint_.z());
+			}
+			else if(newPos.z() < MinConstraint_.z() - 10)
+			{
+				ScnCore::pImpl()->removeEntity(ShipComponent->getParentEntity());
+			}
+		}
 		ShipComponent->getParentEntity()->setWorldPosition(newPos);
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////
+// fireWeapons
+void GaShipProcessor::fireWeapons(const ScnComponentList& Components)
+{
+	float dt = SysKernel::pImpl()->getFrameTime();
+	// Iterate over all the ships.
+	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
+	{
+		auto Component = Components[Idx];
+		BcAssert(Component->isTypeOf< GaShipComponent >());
+		auto* ShipComponent = static_cast< GaShipComponent* >(Component.get());
+		if ((ShipComponent->CurrentInstructions_ & Instruction::SHOOT) != Instruction::NONE) 
+		{
+			ShipComponent->TimeToShoot_ += dt;
+			if (ShipComponent->TimeToShoot_ > ShipComponent->FireRate_)
+			{
+				ShipComponent->TimeToShoot_ -= ShipComponent->FireRate_;
+				float Z = -1.0f;
+				if (ShipComponent->IsPlayer_)
+					Z = 1.0f;
+				for (int Idx = 0; Idx < ShipComponent->GunNodeIndices_.size(); ++Idx)
+				{
+					int index = ShipComponent->GunNodeIndices_[Idx];
+					MaMat4d mat = ShipComponent->Model_->getNodeWorldTransform(index);;
+					ScnEntity* ent = ScnCore::pImpl()->spawnEntity(
+						ScnEntitySpawnParams(
+							"Bullet_0", "ships", "WeaponBullet",
+							mat, ShipComponent->getParentEntity()->getParentEntity()));
+					auto* bullet = ent->getComponentByType<GaBulletComponent>();
+					bullet->setDirection(MaVec3d(0, 0, Z));
+					bullet->setShip(ShipComponent);
+				}
+			}
+		}
+
+	}
+}
 //////////////////////////////////////////////////////////////////////////
 // initialise
 void GaShipProcessor::initialise()
@@ -257,6 +321,23 @@ void GaShipProcessor::addPlayer(GaShipComponent* Player)
 
 
 //////////////////////////////////////////////////////////////////////////
+// addPlayer
+void GaShipProcessor::registerGame(GaGameComponent* Game) 
+{
+	GameComponent_ = Game;
+	MinConstraint_ = Game->getConstraintMin();
+	MaxConstraint_ = Game->getConstraintMax();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// addPlayer
+void GaShipProcessor::deregisterGame(GaGameComponent* Game)
+{
+	if ( Game == GameComponent_)
+		GameComponent_ = nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
 // requestInstructions
 void GaShipProcessor::requestInstructions(GaShipComponent* ShipComponent) {
 	ShipComponent->InstructionSet_ = BcRandom::Global.rand() % InstructionSets_.size();
@@ -274,12 +355,14 @@ void GaShipComponent::StaticRegisterClass()
 		new ReField("InstructionSet_", &GaShipComponent::InstructionSet_, bcRFF_IMPORTER),
 		new ReField("CurrentStep_", &GaShipComponent::CurrentStep_, bcRFF_TRANSIENT),
 		new ReField("CurrentInstructions_", &GaShipComponent::CurrentInstructions_, bcRFF_TRANSIENT),
-		new ReField("Speed_", &GaShipComponent::Speed_, bcRFF_TRANSIENT),
-		new ReField("ZSpeed_", &GaShipComponent::ZSpeed_, bcRFF_TRANSIENT),
+		new ReField("Speed_", &GaShipComponent::Speed_, bcRFF_IMPORTER),
+		new ReField("ZSpeed_", &GaShipComponent::ZSpeed_, bcRFF_IMPORTER),
 		new ReField("TimeOffset_", &GaShipComponent::TimeOffset_, bcRFF_TRANSIENT),
 		new ReField( "Model_", &GaShipComponent::Model_, bcRFF_TRANSIENT ),
 		new ReField( "GunNodeIndices_", &GaShipComponent::GunNodeIndices_, bcRFF_TRANSIENT ),
 		new ReField( "EngineNodeIndices_", &GaShipComponent::EngineNodeIndices_, bcRFF_TRANSIENT ),
+		new ReField( "FireRate_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
+		new ReField( "TimeToShoot_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
 	};
 	
 	using namespace std::placeholders;
@@ -295,7 +378,8 @@ GaShipComponent::GaShipComponent()
 	CurrentStep_(0),
 	ZSpeed_(0),
 	Speed_(15),
-	TimeOffset_(0)
+	TimeOffset_(0),
+	TimeToShoot_(0)
 {
 }
 
@@ -310,11 +394,13 @@ GaShipComponent::~GaShipComponent()
 void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 {
 	Super::onAttach( Parent );
-	GaShipProcessor::pImpl()->addPlayer(this);
+	if (IsPlayer_)
+		GaShipProcessor::pImpl()->addPlayer(this);
 	if (!IsPlayer_) {
 		GaShipProcessor::pImpl()->requestInstructions(this);
 		ZSpeed_ = -20.0f;
 	}
+	GaBulletProcessor::pImpl()->addShip(this);
 	Model_ = Parent->getComponentByType< ScnModelComponent >();
 	if( Model_ )
 	{
@@ -340,6 +426,7 @@ void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 	{
 		PSY_LOG( "GaShipComponent: Unable to find a model component on entity \"%s\"", Parent->getFullName().c_str() );
 	}
+	TimeToShoot_ = BcRandom::Global.randRealRange(0.0f, 0.5f);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -347,5 +434,10 @@ void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 void GaShipComponent::onDetach( ScnEntityWeakRef Parent )
 {
 	Super::onDetach( Parent );
+	GaBulletProcessor::pImpl()->removeShip(this);
+	GaShipDestroyedEvent Event;
+	Event.IsPlayer_ = false;
+	OsCore::pImpl()->publish(gaEVT_SHIP_DESTROYED, Event);
+
 }
 
