@@ -6,8 +6,14 @@
 
 #include "System/Scene/Rendering/ScnDebugRenderComponent.h"
 
+#include "System/Scene/Rendering/ScnCanvasComponent.h"
+#include "System/Scene/Rendering/ScnFont.h"
+
 #include "System/Content/CsPackage.h"
 #include "System/Content/CsCore.h"
+
+#include "System/Os/OsCore.h"
+#include "System/Os/OsClient.h"
 
 #include "System/Debug/DsImGui.h"
 
@@ -103,6 +109,38 @@ void GaGameComponent::update( BcF32 Tick )
 	MaAABB AABB( getConstraintMin(), getConstraintMax() );
 	ScnDebugRenderComponent::pImpl()->drawAABB( AABB, RsColour::RED, 0 );
 #endif
+
+	ScnFontComponent* Font = getComponentAnyParentByType< ScnFontComponent >();
+	ScnCanvasComponent* Canvas = getComponentAnyParentByType< ScnCanvasComponent >();
+
+	OsClient* Client = OsCore::pImpl()->getClient( 0 );
+	BcF32 HalfWidth = static_cast< BcF32 >( Client->getWidth() / 2 );
+	BcF32 HalfHeight = static_cast< BcF32 >( Client->getHeight() / 2 );
+
+	MaMat4d Projection;
+	Projection.orthoProjection( -HalfWidth, HalfWidth, HalfHeight, -HalfHeight, -1.0f, 1.0f );
+
+	Canvas->clear();
+	Canvas->pushMatrix( Projection );
+
+	ScnFontDrawParams DrawParams = ScnFontDrawParams()
+		.setSize( 48.0f )
+		.setMargin( 8.0f )
+		.setAlignment( ScnFontAlignment::HCENTRE | ScnFontAlignment::TOP )
+		.setWrappingEnabled( BcTrue )
+		.setTextColour( RsColour::WHITE )
+		.setBorderColour( RsColour::BLACK )
+		.setTextSettings( MaVec4d( 0.4f, 0.5f, 0.0f, 0.0f ) )
+		.setBorderSettings( MaVec4d( 1.0f, 0.0f, 0.0f, 0.0f ) );
+			
+	Font->drawText( 
+		Canvas,
+		DrawParams,
+		MaVec2d( -HalfWidth, -HalfHeight ),
+		MaVec2d( HalfWidth, HalfHeight ) * 2.0f,
+		L"The quick brown fox jumps over the lazy dog.\n" );
+	
+	Canvas->popMatrix();
 }
 
 //////////////////////////////////////////////////////////////////////////

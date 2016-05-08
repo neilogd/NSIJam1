@@ -12,6 +12,11 @@
 				},
 
 				{
+					"$Class"				: "ScnCanvasComponent",
+					"NoofVertices_"			: 32768
+				},
+
+				{
 					"$Class"				: "ScnDebugRenderComponent",
 					"noofvertices"			: 65536,
 					"material"				: "$(ScnMaterial:materials.debugrender)",
