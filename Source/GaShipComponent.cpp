@@ -69,6 +69,8 @@ void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
 	// Iterate over all the ships.
 	for (BcU32 Idx = 0; Idx < Players_.size(); ++Idx)
 	{
+		if (Players_[Idx] == nullptr)
+			continue;
 		auto* ShipComponent = Players_[Idx];
 		int Set = ShipComponent->InstructionSet_;
 		int Step = ShipComponent->CurrentStep_;
@@ -330,7 +332,7 @@ void GaShipProcessor::collideShipsWithPlayer(const ScnComponentList& Components)
 			if (dif.magnitude() < 5.0f)
 			{
 				GaTitleProcessor::pImpl()->showTitle();
-				GaShipProcessor::pImpl()->removePlayer(Ship);
+				GaShipProcessor::pImpl()->removePlayer(Players_[i]);
 				ScnCore::pImpl()->removeEntity(ShipComponent->getParentEntity()->getParentEntity());
 			}
 
@@ -386,6 +388,8 @@ void GaShipProcessor::endWave()
 {
 	for (int i = 0; i < Players_.size(); ++i)
 	{
+		if (Players_[i] == nullptr)
+			continue;
 		if (Players_[i]->Instructions_.size() > 0)
 			InstructionSets_.push_back(std::vector<WaveInstruction>(Players_[i]->Instructions_));
 		Players_[i]->Instructions_.clear();
@@ -423,8 +427,10 @@ void GaShipProcessor::processInput(BcU32 AsciiCode, InstructionState State)
 		break;
 	}
 	if (player < Players_.size())
-		Players_[player]->Instructions_.push_back(WaveInstruction(-0.0f, State, instr));
-
+	{ 
+		if (Players_[player] == nullptr)
+			Players_[player]->Instructions_.push_back(WaveInstruction(-0.0f, State, instr));
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
