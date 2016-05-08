@@ -20,7 +20,7 @@
 					"camerarotation" : "1.105112, 3.141593, 0.000000",
 					"renderers"	: [
 						"$(ScnEntity:deferred_renderer.Renderer)"
-					]
+					] 
 				},
 
 				{
