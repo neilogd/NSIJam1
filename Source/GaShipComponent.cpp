@@ -323,12 +323,22 @@ void GaShipProcessor::addPlayer(GaShipComponent* Player)
 	Players_.push_back(Player);
 }
 
+void GaShipProcessor::removePlayer(GaShipComponent * Player)
+{
+	for (int i = 0; i < Players_.size(); ++i) {
+		if (Players_[i] == Player) {
+			Players_[i] = nullptr;
+		}
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // addPlayer
 void GaShipProcessor::registerGame(GaGameComponent* Game) 
 {
 	GameComponent_ = Game;
+	Players_.clear();
 	MinConstraint_ = Game->getConstraintMin();
 	MaxConstraint_ = Game->getConstraintMax();
 }

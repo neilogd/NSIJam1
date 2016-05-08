@@ -64,6 +64,7 @@ public:
 	void processInput(BcU32 AsciiCode, InstructionState State);
 
 	void addPlayer(GaShipComponent* Player);
+	void removePlayer(GaShipComponent* Player);
 	void requestInstructions(GaShipComponent* ShipComponent);
 	void startWave();
 	void endWave();
