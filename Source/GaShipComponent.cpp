@@ -261,6 +261,10 @@ void GaShipProcessor::startWave()
 		Players_[i]->Instructions_.clear();
 		Players_[i]->TimeOffset_ = 0.0f;
 		Players_[i]->CurrentStep_ = 0;
+		if (( Players_[i]->CurrentInstructions_ & Instruction::SHOOT) != Instruction::NONE)
+		{
+			Players_[i]->Instructions_.push_back(WaveInstruction(0.0f, InstructionState::SWITCH_ON, Instruction::SHOOT));
+		}
 	}
 }
 
