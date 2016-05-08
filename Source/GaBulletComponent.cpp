@@ -207,7 +207,7 @@ void GaBulletComponent::onAttach( ScnEntityWeakRef Parent )
 		auto Emitter = getComponentByType< ScnSoundEmitterComponent >();
 		if( Emitter )
 		{
-			Emitter->play( EngineSound_, true );
+			//Emitter->play( EngineSound_, true );
 		}
 	}
 }

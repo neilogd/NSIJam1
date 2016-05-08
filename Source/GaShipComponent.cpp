@@ -157,13 +157,13 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 		float Z = 0;
 		Instruction instr = ShipComponent->CurrentInstructions_;
 		if (BcContainsAnyFlags(instr, Instruction::MOVE_LEFT))
-			X -= 1.0f;
+			X -= ShipComponent->IsPlayer_ ? 1.0f : -1.0f;
 		if (BcContainsAnyFlags(instr, Instruction::MOVE_RIGHT))
-			X += 1.0f;
+			X += ShipComponent->IsPlayer_ ? 1.0f : -1.0f;
 		if (BcContainsAnyFlags(instr, Instruction::MOVE_UP))
-			Z += 1.0f;
+			Z += ShipComponent->IsPlayer_ ? 1.0f : -1.0f;
 		if (BcContainsAnyFlags(instr, Instruction::MOVE_DOWN))
-			Z -= 1.0f;
+			Z -= ShipComponent->IsPlayer_ ? 1.0f : -1.0f;
 		MaVec3d movement(X, 0, Z);
 		movement.normalise();
 		movement.x(movement.x() * ShipComponent->Speed_);
@@ -483,8 +483,11 @@ void GaShipProcessor::deregisterGame(GaGameComponent* Game)
 
 //////////////////////////////////////////////////////////////////////////
 // requestInstructions
-void GaShipProcessor::requestInstructions(GaShipComponent* ShipComponent) {
-	ShipComponent->InstructionSet_ = BcRandom::Global.rand() % InstructionSets_.size();
+void GaShipProcessor::requestInstructions(GaShipComponent* ShipComponent)
+{
+	static size_t Idx = 0;
+	ShipComponent->InstructionSet_ = Idx;
+	Idx = ( Idx + 1 ) % InstructionSets_.size();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -587,6 +590,11 @@ void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 
 	ActualPosition_ = Parent->getLocalPosition();
 	TargetPosition_ = Parent->getLocalPosition();
+
+	if( !IsPlayer_ )
+	{
+		TimeOffset_ += 2.0f;	
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

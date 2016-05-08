@@ -141,7 +141,7 @@ void GaTitleProcessor::updateTitle(const ScnComponentList& Components)
 			TeamDrawParams,
 			MaVec2d(-HalfWidth, -HalfHeight),
 			MaVec2d(HalfWidth, HalfHeight) * 2.0f,
-			"Team Didja Putit In Jira\nDezzles - Neilogd");
+			"Team Didja Putit In Jira\nDezzles - NeiloGD");
 		Canvas->popMatrix();
 	}
 }
