@@ -106,6 +106,11 @@ void GaGameComponent::onAttach( ScnEntityWeakRef Parent )
 	Super::onAttach( Parent );
 	GaShipProcessor::pImpl()->registerGame(this);
 	GaBulletProcessor::pImpl()->registerGame(this);
+	ScnCore::pImpl()->spawnEntity(
+		ScnEntitySpawnParams(
+			"PlayerShip_0", PlayerShipTemplates_[0],
+			MaMat4d(), getParentEntity()));
+
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -63,6 +63,7 @@ void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
 		auto* ShipComponent = Players_[Idx];
 		int Set = ShipComponent->InstructionSet_;
 		int Step = ShipComponent->CurrentStep_;
+		ShipComponent->Score_ += dt;
 		// Update AI Ships setting. This will currently eventually throw an error
 		ShipComponent->TimeOffset_ += dt;
 		while (ShipComponent->Instructions_.size() > ShipComponent->CurrentStep_) {
@@ -193,10 +194,10 @@ void GaShipProcessor::fireWeapons(const ScnComponentList& Components)
 		auto Component = Components[Idx];
 		BcAssert(Component->isTypeOf< GaShipComponent >());
 		auto* ShipComponent = static_cast< GaShipComponent* >(Component.get());
-		if ((ShipComponent->CurrentInstructions_ & Instruction::SHOOT) != Instruction::NONE) 
+		ShipComponent->TimeToShoot_ += dt;
+		if (ShipComponent->TimeToShoot_ >= ShipComponent->FireRate_)
 		{
-			ShipComponent->TimeToShoot_ += dt;
-			if (ShipComponent->TimeToShoot_ > ShipComponent->FireRate_)
+			if ((ShipComponent->CurrentInstructions_ & Instruction::SHOOT) != Instruction::NONE)
 			{
 				ShipComponent->TimeToShoot_ -= ShipComponent->FireRate_;
 				float Z = -1.0f;
@@ -215,8 +216,11 @@ void GaShipProcessor::fireWeapons(const ScnComponentList& Components)
 					bullet->setShip(ShipComponent);
 				}
 			}
+			else
+			{
+				ShipComponent->TimeToShoot_ = ShipComponent->FireRate_;
+			}
 		}
-
 	}
 }
 //////////////////////////////////////////////////////////////////////////
@@ -363,6 +367,7 @@ void GaShipComponent::StaticRegisterClass()
 		new ReField( "EngineNodeIndices_", &GaShipComponent::EngineNodeIndices_, bcRFF_TRANSIENT ),
 		new ReField( "FireRate_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
 		new ReField( "TimeToShoot_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
+		//new ReField( "Score_", &GaShipComponent::Score_, bcRFF_IMPORTER),
 	};
 	
 	using namespace std::placeholders;

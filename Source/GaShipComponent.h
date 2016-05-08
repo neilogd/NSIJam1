@@ -111,6 +111,7 @@ private:
 	float TimeOffset_;
 	float FireRate_;
 	float TimeToShoot_;
+	float Score_;
 
 	class ScnModelComponent* Model_ = nullptr;
 	std::vector< BcU32 > GunNodeIndices_;

@@ -63,5 +63,5 @@ private:
 	float Speed_;
 	MaVec3d Direction_;
 	class ScnModelComponent* Model_ = nullptr;
-	GaShipComponent* Ship_;
+	GaShipComponent* Ship_ = nullptr;
 };
