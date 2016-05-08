@@ -99,6 +99,7 @@ GaHeightmapComponent::~GaHeightmapComponent()
 // update
 void GaHeightmapComponent::update( BcF32 Tick )
 {
+#if !PSY_PRODUCTION
 	if( ImGui::Begin( "Game Debug Menu" ) )
 	{
 		ImGui::Separator();
@@ -118,7 +119,7 @@ void GaHeightmapComponent::update( BcF32 Tick )
 		ImGui::Separator();
 	}
 	ImGui::End();
-
+#endif
 	ObjectUniformBlock_.WorldTransform_.identity();
 	ObjectUniformBlock_.NormalTransform_.identity();
 	RsCore::pImpl()->updateBuffer( ObjectUniformBuffer_.get(), 0, sizeof( ObjectUniformBlock_ ), 

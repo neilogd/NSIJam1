@@ -98,6 +98,8 @@ void GaWaveComponent::update(float Tick)
 			StartWave();
 		}
 	}
+
+#if !PSY_PRODUCTION
 	if (ImGui::Begin("Wave Debug Menu"))
 	{
 		ImGui::Separator();
@@ -115,6 +117,7 @@ void GaWaveComponent::update(float Tick)
 		ImGui::Separator();
 	}
 	ImGui::End();
+#endif
 }
 
 void GaWaveComponent::StartWave()
