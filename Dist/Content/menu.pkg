@@ -1,7 +1,7 @@
 {
 	"resources" : [
 		{
-			"name"		:		"MainEntity",
+			"name"		:		"MenuEntity",
 			"type"		:		"ScnEntity",
 
 			"components" : [
@@ -10,98 +10,16 @@
 					"font"					: "$(ScnFont:fonts.courier)",
 					"material"				: "$(ScnMaterial:materials.font)"
 				},
-
 				{
-					"$Class"				: "ScnDebugRenderComponent",
-					"noofvertices"			: 65536,
-					"material"				: "$(ScnMaterial:materials.debugrender)",
-					"rendermask"			: 3
+					"$Class"				: "ScnCanvasComponent",
+					"NoofVertices_"			: 32768,
+					"clear"					: true
 				},
 
-				{
-					"$Class"				: "ScnPhysicsWorldComponent",
-					"gravity"				: "0.0, 0.0, 0.0",
-					"debugdrawworld"		: false
-				},
 
 				{
-					"$Class"				: "ScnModelComponent",
-					"model"					: "$(ScnModel:models.CloudPlane)",
-					"islit"					: false,
-					"scale"					: "2.0, 2.0, 2.0",
-					"layer"					: 1,
-					"passes"				: "TRANSPARENT"
-				},
-
-				{
-					"$Class"				: "GaHeightmapComponent",
-					"texture"				: "$(ScnTexture:textures.heightmap)",
-					"material"				: "$(ScnMaterial:materials.heightmap)",
-					"heightmapuniformblock" : {
-						"HeightmapDimensions_" : 192.0,
-						"HeightmapHeight_" : 155.0,
-						"HeightmapOffset_" : -60.0,
-						"HeightmapLayer0Height_" : 1.0,
-						"HeightmapLayer1Height_" : 12.782,
-						"HeightmapLayer2Height_" : 21.045,
-						"HeightmapLayer3Height_" : 34.014,
-						"HeightmapNormalTweak_" : 0.025
-					}
-				},
-
-				{
-					"$Class"				: "GaGameComponent",
-					"maxX" 					: 64,
-					"minZ"					: -100,
-					"maxZ"					: 100,
-					"playershiptemplates"			: [
-						"$(ScnEntity:ships.PlayerShip)"
-					],
-
-					"enemyshiptemplates"			: [
-						"$(ScnEntity:ships.EnemyShipA)"
-					]
-				},
-				{
-					"$Class"				: "GaWaveComponent"
-				},
-				{
-					"name"		:		"CameraEntity",
-					"$Class"		:	"ScnEntity",
-
-					"components" : [
-						{
-							"$Class"				: "GaCameraComponent",
-							
-							"renderers"	: [
-								"$(ScnEntity:deferred_renderer.Renderer)"
-							]
-						},
-
-						{
-							"$Class"				: "ScnSoundListenerComponent"
-						},
-
-						{
-							"$Class"				: "ScnLightComponent",
-
-							"diffusecolour"			: "0.5, 0.5, 0.5, 1.0",
-
-							"min"					: 16.0,
-							"mid"					: 2048.0,
-							"max"					: 1000000.0
-						},
-
-						{
-							"$Class"				: "ScnModelComponent",
-							"model"					: "$(ScnModel:models.skysphere)",
-							"islit"					: false,
-							"scale"					: "1000.0, 1000.0, 1000.0",
-							"layer"					: 0,
-							"passes"				: "TRANSPARENT"
-						}
-					]
-				}	
+					"$Class"				: "GaTitleComponent"
+				}
 			]
 		}
 	]

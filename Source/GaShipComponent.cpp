@@ -10,7 +10,7 @@
 
 #include "GaGameComponent.h"
 #include "GaBulletComponent.h"
-
+#include "GaTitleComponent.h"
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipProcessor::GaShipProcessor():
@@ -87,6 +87,7 @@ void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
 	}
 	if (GameComponent_)
 		GameComponent_->SetScore(totalScore);
+	GaTitleProcessor::pImpl()->setScore(totalScore);
 }
 //////////////////////////////////////////////////////////////////////////
 // updateShips
