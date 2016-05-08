@@ -7,10 +7,12 @@
 #include "System/Os/OsCore.h"
 #include "System/Os/OsEvents.h"
 #include "System/Scene/Sound/ScnSoundEmitter.h"
+#include "System/Scene/Rendering/ScnParticleSystemComponent.h"
 
 #include "GaGameComponent.h"
 #include "GaBulletComponent.h"
 #include "GaTitleComponent.h"
+
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaShipProcessor::GaShipProcessor():
@@ -136,6 +138,9 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 {
 	float dt = SysKernel::pImpl()->getFrameTime();
 	// Iterate over all the ships.
+	static BcF64 Timer_ = 0.0f;
+	Timer_ += dt;
+
 	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
 	{
 		auto Component = Components[Idx];
@@ -188,13 +193,61 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 		}
 
 		MaMat4d Rotation;
+
+		BcF32 Rot = std::sin( Timer_ * 0.2f ) + std::sin( Timer_ ) + std::sin( Timer_ * 2.2f ) * 0.2f;
+		Rot *= 0.1f;
 		if(!ShipComponent->IsPlayer_)
 		{
-			Rotation.rotation( MaVec3d( 0.0f, BcPI, 0.0f ) );
+			Rotation.rotation( MaVec3d( 0.0f, BcPI, Rot  ) );
+		}
+		else
+		{
+			Rotation.rotation( MaVec3d( 0.0f, 0.0f, Rot  ) );
 		}
 
 		ShipComponent->getParentEntity()->setLocalMatrix( Rotation );
 		ShipComponent->getParentEntity()->setLocalPosition(newPos);
+
+
+		// emit particles
+#if 0 // BUG
+		if( ShipComponent->Additive_ )
+		{
+			ScnParticle* Particle = nullptr;
+			for( auto NodeIdx: ShipComponent->EngineNodeIndices_ )
+			{
+				auto NodeTrans = ShipComponent->Model_->getNodeWorldTransform( NodeIdx );
+				if( ShipComponent->Additive_->allocParticle( Particle ) )
+				{
+					Particle->CurrentTime_ = 0.0f;
+					Particle->Position_ = NodeTrans.translation();
+
+					if( ShipComponent->IsPlayer_ )
+					{
+						Particle->Velocity_ = MaVec3d( 0.0f, 0.0f, -0.1f );
+					}
+					else
+					{
+						Particle->Velocity_ = MaVec3d( 0.0f, 0.0f, 0.1f );
+					}
+
+					Particle->Acceleration_ = MaVec3d( 0.0f, 0.0f, 0.0f );
+					Particle->Scale_ = MaVec2d( 2.0f, 2.0f );
+					Particle->MinScale_ = MaVec2d( 32.0f, 32.0f );
+					Particle->MaxScale_ = MaVec2d( 32.0f, 32.0f );
+					Particle->Rotation_ = 0.0f;
+					Particle->RotationMultiplier_ = 0.0f;
+					Particle->Colour_ = RsColour::BLUE * 1.0f;
+					Particle->MinColour_ = RsColour::BLUE * 1.0f;
+					Particle->MaxColour_ = RsColour::ORANGE * RsColour( 0.0f, 0.0f, 0.0f, 1.0f );
+					Particle->TextureIndex_ = 4;
+					Particle->CurrentTime_ = 0.0f;
+					Particle->MaxTime_ = 3.0f;
+					Particle->Alive_ = BcTrue;
+				}
+			}
+		}
+#endif
 	}
 }
 
@@ -479,6 +532,9 @@ void GaShipComponent::onAttach( ScnEntityWeakRef Parent )
 		BcAssert( Emitter );
 		Emitter->play( EngineSound_, true );
 	}
+
+	Additive_ = getComponentAnyParentByType< ScnParticleSystemComponent >( "Additive" );
+	Subtractive_ = getComponentAnyParentByType< ScnParticleSystemComponent >( "Subtractive" );
 }
 
 //////////////////////////////////////////////////////////////////////////
