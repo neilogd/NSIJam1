@@ -203,15 +203,18 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 
 		MaMat4d Rotation;
 
-		BcF32 Rot = std::sin( Timer_ * 0.2f ) + std::sin( Timer_ ) + std::sin( Timer_ * 2.2f ) * 0.2f;
+		BcF32 Rot = std::sin( Timer_ * 0.2f ) + std::sin( Timer_ ) + std::sin( Timer_ * 2.2f ) * 0.1f;
 		Rot *= 0.1f;
+
+		BcF32 RotOffRaw = ( ShipComponent->TargetPosition_.x() - ShipComponent->ActualPosition_.x() ) * 0.4f;
+		BcF32 RotOff = BcClamp( RotOffRaw, -0.25f, 0.25f );
 		if(!ShipComponent->IsPlayer_)
 		{
-			Rotation.rotation( MaVec3d( 0.0f, BcPI, Rot  ) );
+			Rotation.rotation( MaVec3d( 0.0f, BcPI, Rot + RotOff ) );
 		}
 		else
 		{
-			Rotation.rotation( MaVec3d( 0.0f, 0.0f, Rot  ) );
+			Rotation.rotation( MaVec3d( 0.0f, 0.0f, Rot + RotOff ) );
 		}
 
 		ShipComponent->getParentEntity()->setLocalMatrix( Rotation );
@@ -431,7 +434,7 @@ void GaShipProcessor::processInput(BcU32 AsciiCode, InstructionState State)
 	}
 	if (player < Players_.size())
 	{ 
-		if (Players_[player] == nullptr)
+		if (Players_[player] != nullptr)
 			Players_[player]->Instructions_.push_back(WaveInstruction(-0.0f, State, instr));
 	}
 }

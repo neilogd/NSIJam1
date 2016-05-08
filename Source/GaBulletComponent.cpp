@@ -205,8 +205,10 @@ void GaBulletComponent::onAttach( ScnEntityWeakRef Parent )
 	if( EngineSound_ )
 	{
 		auto Emitter = getComponentByType< ScnSoundEmitterComponent >();
-		BcAssert( Emitter );
-		Emitter->play( EngineSound_, true );
+		if( Emitter )
+		{
+			Emitter->play( EngineSound_, true );
+		}
 	}
 }
 
