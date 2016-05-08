@@ -100,8 +100,10 @@ void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
 					if (BulletComponent->ExplodeSounds_.size() > 0)
 					{
 						auto Emitter = BulletComponent->getComponentByType< ScnSoundEmitterComponent >();
-						BcAssert(Emitter);
-						Emitter->playOneShot(BulletComponent->ExplodeSounds_[BcRandom::Global.randRange(0, BulletComponent->ExplodeSounds_.size() - 1)]);
+						if (Emitter)
+						{
+							Emitter->playOneShot(BulletComponent->ExplodeSounds_[BcRandom::Global.randRange(0, BulletComponent->ExplodeSounds_.size() - 1)]);
+						}
 					}
 
 					GaTitleProcessor::pImpl()->showTitle();

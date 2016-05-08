@@ -22,7 +22,8 @@
 						"$(ScnSound:sound.Launch0)",
 						"$(ScnSound:sound.Launch1)",
 						"$(ScnSound:sound.Launch2)"
-					]
+					],
+					"speed"					: 30
 				},
 
 				{
@@ -44,7 +45,7 @@
 					"velocitymultiplier"	: 100.0,
 					"maxvelocity"			: 100.0,
 					"maxdistance"			: 128.0,
-					"rollofffactor"			: 1.0
+					"rollofffactor"			: 0.5
 				},
 
 				{
@@ -56,7 +57,8 @@
 						"$(ScnSound:sound.Launch0)",
 						"$(ScnSound:sound.Launch1)",
 						"$(ScnSound:sound.Launch2)"
-					]
+					],
+					"speed"					: 30
 				},
 
 				{
@@ -78,7 +80,7 @@
 					"velocitymultiplier"	: 100.0,
 					"maxvelocity"			: 100.0,
 					"maxdistance"			: 64.0,
-					"rollofffactor"			: 0.25
+					"rollofffactor"			: 0.125
 				},
 
 				{

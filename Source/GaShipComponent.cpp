@@ -157,7 +157,7 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 		movement.normalise();
 		movement.x(movement.x() * ShipComponent->Speed_);
 		movement.z(movement.z() * ShipComponent->Speed_ + ShipComponent->ZSpeed_);
-		MaVec3d oldPos = ShipComponent->getParentEntity()->getWorldPosition();
+		MaVec3d oldPos = ShipComponent->getParentEntity()->getLocalPosition();
 		MaVec3d newPos = oldPos + movement * dt;
 
 		if (newPos.x() < MinConstraint_.x())
@@ -186,7 +186,15 @@ void GaShipProcessor::updateShipPositions(const ScnComponentList& Components)
 				ScnCore::pImpl()->removeEntity(ShipComponent->getParentEntity());
 			}
 		}
-		ShipComponent->getParentEntity()->setWorldPosition(newPos);
+
+		MaMat4d Rotation;
+		if(!ShipComponent->IsPlayer_)
+		{
+			Rotation.rotation( MaVec3d( 0.0f, BcPI, 0.0f ) );
+		}
+
+		ShipComponent->getParentEntity()->setLocalMatrix( Rotation );
+		ShipComponent->getParentEntity()->setLocalPosition(newPos);
 	}
 }
 
@@ -226,8 +234,10 @@ void GaShipProcessor::fireWeapons(const ScnComponentList& Components)
 				if( ShipComponent->LaunchSounds_.size() > 0 )
 				{
 					auto Emitter = ShipComponent->getComponentByType< ScnSoundEmitterComponent >();
-					BcAssert( Emitter );
-					Emitter->playOneShot( ShipComponent->LaunchSounds_[ BcRandom::Global.randRange( 0, ShipComponent->LaunchSounds_.size() - 1 ) ] );
+					if( Emitter )
+					{
+						Emitter->playOneShot( ShipComponent->LaunchSounds_[ BcRandom::Global.randRange( 0, ShipComponent->LaunchSounds_.size() - 1 ) ] );
+					}
 				}
 			}
 			else
