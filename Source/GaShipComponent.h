@@ -70,6 +70,7 @@ public:
 
 	void registerGame(GaGameComponent* Game);
 	void deregisterGame(GaGameComponent* Game);
+
 protected:
 	void initialise() override;
 	void shutdown() override;

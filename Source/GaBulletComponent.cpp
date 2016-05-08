@@ -6,8 +6,9 @@
 
 #include "System/Os/OsCore.h"
 #include "System/Os/OsEvents.h"
-
+#include "System/SysKernel.h"
 #include "GaGameComponent.h"
+#include "GaShipComponent.h"
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaBulletProcessor::GaBulletProcessor():
@@ -16,6 +17,10 @@ GaBulletProcessor::GaBulletProcessor():
 		"Update Update",
 		ScnComponentPriority::DEFAULT_UPDATE,
 		std::bind(&GaBulletProcessor::updateBullets, this, std::placeholders::_1)),
+	ScnComponentProcessFuncEntry(
+		"Do Collisions",
+		ScnComponentPriority::DEFAULT_UPDATE + 10,
+		std::bind(&GaBulletProcessor::bulletCollisions, this, std::placeholders::_1)),
 	} )
 {
 
@@ -32,8 +37,8 @@ GaBulletProcessor::~GaBulletProcessor()
 // updateBullets
 void GaBulletProcessor::updateBullets(const ScnComponentList& Components)
 {
+	float dt = SysKernel::pImpl()->getFrameTime();
 	static float Time = 0.0f;
-	static float dt = 1 / 60.0f;
 	Time += dt;
 	// Iterate over all the ships.
 	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
@@ -48,12 +53,43 @@ void GaBulletProcessor::updateBullets(const ScnComponentList& Components)
 		MaVec3d oldPos = ShipComponent->getParentEntity()->getWorldPosition();
 		MaVec3d newPos = oldPos + movement * dt;
 		ShipComponent->getParentEntity()->setWorldPosition(newPos);
-		if ( ( newPos.x() < MinConstraint_.x()) || (newPos.x() > MaxConstraint_.x() ) || 
-			(newPos.z() < MinConstraint_.z()) || (newPos.z() > MaxConstraint_.z()) ) 
+		if ((newPos.x() < MinConstraint_.x()) || (newPos.x() > MaxConstraint_.x()) ||
+			(newPos.z() < MinConstraint_.z()) || (newPos.z() > MaxConstraint_.z()))
 		{
 			//ShipComponent->ParentEntity_->destroy();
 			ScnCore::pImpl()->removeEntity(ShipComponent->getParentEntity());
 		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// updateBullets
+void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
+{
+	float dt = SysKernel::pImpl()->getFrameTime();
+	static float Time = 0.0f;
+	Time += dt;
+	// Iterate over all the ships.
+	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
+	{
+		auto Component = Components[Idx];
+		BcAssert(Component->isTypeOf< GaBulletComponent >());
+		auto* BulletComponent = static_cast< GaBulletComponent* >(Component.get());
+		MaVec3d position = BulletComponent->getParentEntity()->getWorldPosition();
+		for (BcU32 Idx2 = 0; Idx2 < Ships_.size(); ++Idx2)
+		{
+			auto* Ship = Ships_[Idx2];
+			if (Ship == BulletComponent->Ship_)
+				continue;
+			MaVec3d shipPos = Ship->getParentEntity()->getWorldPosition();
+			MaVec3d dif = position - shipPos;
+			float distance = dif.magnitude();
+			if (distance < 5.0f) 
+			{ 
+				ScnCore::pImpl()->removeEntity(Ship->getParentEntity());
+				ScnCore::pImpl()->removeEntity(BulletComponent->getParentEntity());
+			}
+		}/**/
 	}
 }
 
@@ -72,6 +108,21 @@ void GaBulletProcessor::deregisterGame(GaGameComponent* Game)
 {
 	if (Game == GameComponent_)
 		GameComponent_ = nullptr;
+}
+void GaBulletProcessor::addShip(GaShipComponent * Ship)
+{
+	Ships_.push_back(Ship);
+}
+void GaBulletProcessor::removeShip(GaShipComponent * Ship)
+{
+	for (int i = 0; i < Ships_.size(); ++i)
+	{
+		if (Ships_[i] == Ship)
+		{
+			Ships_.erase(Ships_.begin() + i);
+			return;
+		}
+	}
 }
 //////////////////////////////////////////////////////////////////////////
 // initialise
@@ -97,6 +148,7 @@ void GaBulletComponent::StaticRegisterClass()
 	{
 		new ReField( "Speed_", &GaBulletComponent::Speed_, bcRFF_IMPORTER ),
 		new ReField( "Direction_", &GaBulletComponent::Direction_, bcRFF_IMPORTER ),
+		new ReField( "Ship_", &GaBulletComponent::Ship_, bcRFF_TRANSIENT ),
 	};
 	
 	using namespace std::placeholders;
@@ -135,5 +187,10 @@ void GaBulletComponent::onDetach( ScnEntityWeakRef Parent )
 void GaBulletComponent::setDirection(MaVec3d Direction)
 {
 	Direction_ = Direction;
+}
+
+void GaBulletComponent::setShip(GaShipComponent * Ship)
+{
+	Ship_ = Ship;
 }
 

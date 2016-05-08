@@ -12,6 +12,7 @@
 
 class GaBulletComponent;
 class GaGameComponent;
+class GaShipComponent;
 //////////////////////////////////////////////////////////////////////////
 // GaBulletProcessor
 class GaBulletProcessor : 
@@ -23,8 +24,12 @@ public:
 	virtual ~GaBulletProcessor();
 
 	void updateBullets(const ScnComponentList& Components);
+	void bulletCollisions(const ScnComponentList& Components);
 	void registerGame(GaGameComponent* Game);
 	void deregisterGame(GaGameComponent* Game);
+
+	void addShip(GaShipComponent* Ship);
+	void removeShip(GaShipComponent* Ship);
 protected:
 	void initialise() override;
 	void shutdown() override;
@@ -33,6 +38,8 @@ private:
 	MaVec3d MinConstraint_;
 	MaVec3d MaxConstraint_;
 	GaGameComponent* GameComponent_;
+
+	std::vector<GaShipComponent*> Ships_;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -49,12 +56,12 @@ public:
 	void onAttach( ScnEntityWeakRef Parent ) override;
 	void onDetach( ScnEntityWeakRef Parent ) override;
 	void setDirection(MaVec3d Direction);
-
-
+	void setShip(GaShipComponent* Ship);
 private:
 	friend class GaBulletProcessor;
 
 	float Speed_;
 	MaVec3d Direction_;
 	class ScnModelComponent* Model_ = nullptr;
+	GaShipComponent* Ship_;
 };
