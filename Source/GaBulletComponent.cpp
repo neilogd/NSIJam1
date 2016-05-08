@@ -107,6 +107,7 @@ void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
 				else 
 				{
 					GaTitleProcessor::pImpl()->showTitle();
+					GaShipProcessor::pImpl()->removePlayer(Ship);
 					ScnCore::pImpl()->removeEntity(BulletComponent->getParentEntity()->getParentEntity());
 				}
 			}

@@ -62,6 +62,7 @@ public:
 	void updatePlayers(const ScnComponentList& Components);
 	void updateEnemies( const ScnComponentList& Components );
 	void updateShipPositions(const ScnComponentList& Components);
+	void collideShipsWithPlayer(const ScnComponentList& Components);
 	void fireWeapons(const ScnComponentList& Components);
 	void processInput(BcU32 AsciiCode, InstructionState State);
 

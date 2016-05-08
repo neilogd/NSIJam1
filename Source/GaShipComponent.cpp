@@ -32,7 +32,11 @@ GaShipProcessor::GaShipProcessor():
 	ScnComponentProcessFuncEntry(
 		"Fire Weapons!",
 		ScnComponentPriority::DEFAULT_UPDATE + 30,
-		std::bind(&GaShipProcessor::fireWeapons, this, std::placeholders::_1))
+		std::bind(&GaShipProcessor::fireWeapons, this, std::placeholders::_1)),
+	ScnComponentProcessFuncEntry(
+		"Collide Ship With Players",
+		ScnComponentPriority::DEFAULT_UPDATE + 40,
+		std::bind(&GaShipProcessor::collideShipsWithPlayer, this, std::placeholders::_1))
 	} )
 {
 	InstructionSets_.push_back(std::vector<WaveInstruction>());
@@ -65,6 +69,8 @@ void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
 	// Iterate over all the ships.
 	for (BcU32 Idx = 0; Idx < Players_.size(); ++Idx)
 	{
+		if (Players_[Idx] == nullptr)
+			continue;
 		auto* ShipComponent = Players_[Idx];
 		int Set = ShipComponent->InstructionSet_;
 		int Step = ShipComponent->CurrentStep_;
@@ -303,6 +309,39 @@ void GaShipProcessor::fireWeapons(const ScnComponentList& Components)
 		}
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////
+// collideShipsWithPlayer
+void GaShipProcessor::collideShipsWithPlayer(const ScnComponentList& Components)
+{
+	float dt = SysKernel::pImpl()->getFrameTime();
+	// Iterate over all the ships.
+	for (BcU32 Idx = 0; Idx < Components.size(); ++Idx)
+	{
+		auto Component = Components[Idx];
+		BcAssert(Component->isTypeOf< GaShipComponent >());
+		auto* ShipComponent = static_cast< GaShipComponent* >(Component.get());
+		MaVec3d position = ShipComponent->getParentEntity()->getWorldPosition();
+
+		for (int i = 0; i < Players_.size(); ++i) {
+			if (Players_[i] == nullptr)
+				continue;
+			if (Players_[i] == ShipComponent)
+				continue;
+
+			MaVec3d shipPos = Players_[i]->getParentEntity()->getWorldPosition();
+			MaVec3d dif = position - shipPos;
+			dif.y(0);
+			if (dif.magnitude() < 5.0f)
+			{
+				GaTitleProcessor::pImpl()->showTitle();
+				GaShipProcessor::pImpl()->removePlayer(Players_[i]);
+				ScnCore::pImpl()->removeEntity(ShipComponent->getParentEntity()->getParentEntity());
+			}
+
+		}
+	}
+}
 //////////////////////////////////////////////////////////////////////////
 // initialise
 void GaShipProcessor::initialise()
@@ -352,6 +391,8 @@ void GaShipProcessor::endWave()
 {
 	for (int i = 0; i < Players_.size(); ++i)
 	{
+		if (Players_[i] == nullptr)
+			continue;
 		if (Players_[i]->Instructions_.size() > 0)
 			InstructionSets_.push_back(std::vector<WaveInstruction>(Players_[i]->Instructions_));
 		Players_[i]->Instructions_.clear();
@@ -389,8 +430,10 @@ void GaShipProcessor::processInput(BcU32 AsciiCode, InstructionState State)
 		break;
 	}
 	if (player < Players_.size())
-		Players_[player]->Instructions_.push_back(WaveInstruction(-0.0f, State, instr));
-
+	{ 
+		if (Players_[player] == nullptr)
+			Players_[player]->Instructions_.push_back(WaveInstruction(-0.0f, State, instr));
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
