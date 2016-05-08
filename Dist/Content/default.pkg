@@ -66,30 +66,8 @@
 					"debugdrawworld"		: false
 				},
 
-				{
-					"$Class"				: "ScnModelComponent",
-					"model"					: "$(ScnModel:models.CloudPlane)",
-					"islit"					: false,
-					"scale"					: "2.0, 2.0, 2.0",
-					"layer"					: 1,
-					"passes"				: "TRANSPARENT"
-				},
 
-				{
-					"$Class"				: "GaHeightmapComponent",
-					"texture"				: "$(ScnTexture:textures.heightmap)",
-					"material"				: "$(ScnMaterial:materials.heightmap)",
-					"heightmapuniformblock" : {
-						"HeightmapDimensions_" : 192.0,
-						"HeightmapHeight_" : 155.0,
-						"HeightmapOffset_" : -60.0,
-						"HeightmapLayer0Height_" : 1.0,
-						"HeightmapLayer1Height_" : 12.782,
-						"HeightmapLayer2Height_" : 21.045,
-						"HeightmapLayer3Height_" : 34.014,
-						"HeightmapNormalTweak_" : 0.025
-					}
-				},
+
 
 				{
 					"$Class"				: "GaGameComponent",

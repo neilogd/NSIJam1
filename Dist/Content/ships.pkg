@@ -83,7 +83,7 @@
 
 				{
 					"$Class"				: "GaBulletComponent",
-					"speed"					: 30,
+					"speed"					: 60,
 					"enginesound"			: "$(ScnSound:sound.Missile)",
 					"explodesounds"			: [
 						"$(ScnSound:sound.Explode0)",
