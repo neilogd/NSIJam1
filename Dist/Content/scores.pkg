@@ -1,0 +1,23 @@
+{
+	"resources" : [
+		{
+			"name"		:		"ScoresEntity",
+			"type"		:		"ScnEntity",
+
+			"components" : [
+				{
+					"$Class"				: "ScnFontComponent",
+					"font"					: "$(ScnFont:fonts.courier)",
+					"material"				: "$(ScnMaterial:materials.font)"
+				},
+
+				{
+					"$Class"				: "ScnDebugRenderComponent",
+					"noofvertices"			: 65536,
+					"material"				: "$(ScnMaterial:materials.debugrender)",
+					"rendermask"			: 3
+				}
+			]
+		}
+	]
+}

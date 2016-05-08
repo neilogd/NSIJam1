@@ -1,43 +1,6 @@
 {
 	"resources" : [
 		{
-			"name"		:		"CameraEntity",
-			"type"		:		"ScnEntity",
-
-			"components" : [
-				{
-					"$Class"				: "GaCameraComponent",
-					
-					"renderers"	: [
-						"$(ScnEntity:deferred_renderer.Renderer)"
-					]
-				},
-
-				{
-					"$Class"				: "ScnSoundListenerComponent"
-				},
-
-				{
-					"$Class"				: "ScnLightComponent",
-
-					"diffusecolour"			: "0.5, 0.5, 0.5, 1.0",
-
-					"min"					: 16.0,
-					"mid"					: 2048.0,
-					"max"					: 1000000.0
-				},
-
-				{
-					"$Class"				: "ScnModelComponent",
-					"model"					: "$(ScnModel:models.skysphere)",
-					"islit"					: false,
-					"scale"					: "1000.0, 1000.0, 1000.0",
-					"layer"					: 0,
-					"passes"				: "TRANSPARENT"
-				}
-			]
-		},
-		{
 			"name"		:		"MainEntity",
 			"type"		:		"ScnEntity",
 
@@ -101,8 +64,44 @@
 				},
 				{
 					"$Class"				: "GaWaveComponent"
-				}
-				
+				},
+				{
+					"name"		:		"CameraEntity",
+					"$Class"		:	"ScnEntity",
+
+					"components" : [
+						{
+							"$Class"				: "GaCameraComponent",
+							
+							"renderers"	: [
+								"$(ScnEntity:deferred_renderer.Renderer)"
+							]
+						},
+
+						{
+							"$Class"				: "ScnSoundListenerComponent"
+						},
+
+						{
+							"$Class"				: "ScnLightComponent",
+
+							"diffusecolour"			: "0.5, 0.5, 0.5, 1.0",
+
+							"min"					: 16.0,
+							"mid"					: 2048.0,
+							"max"					: 1000000.0
+						},
+
+						{
+							"$Class"				: "ScnModelComponent",
+							"model"					: "$(ScnModel:models.skysphere)",
+							"islit"					: false,
+							"scale"					: "1000.0, 1000.0, 1000.0",
+							"layer"					: 0,
+							"passes"				: "TRANSPARENT"
+						}
+					]
+				}	
 			]
 		}
 	]

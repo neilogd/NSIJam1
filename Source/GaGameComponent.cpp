@@ -113,10 +113,16 @@ void GaGameComponent::onAttach( ScnEntityWeakRef Parent )
 	Super::onAttach( Parent );
 	GaShipProcessor::pImpl()->registerGame(this);
 	GaBulletProcessor::pImpl()->registerGame(this);
+	MaVec3d max = getConstraintMax();
+	MaVec3d min = getConstraintMin();
+	MaMat4d mat;
+	float d = 0.9f;
+	float pos = (1.0f - d) * max.x() + d * min.y();
+	mat.translation(MaVec3d(0.0f, 0.0f, pos));
 	ScnCore::pImpl()->spawnEntity(
 		ScnEntitySpawnParams(
 			"PlayerShip_0", PlayerShipTemplates_[0],
-			MaMat4d(), getParentEntity()));
+			mat, getParentEntity()));
 
 }
 

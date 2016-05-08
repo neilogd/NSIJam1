@@ -377,7 +377,7 @@ void GaShipComponent::StaticRegisterClass()
 		new ReField( "EngineNodeIndices_", &GaShipComponent::EngineNodeIndices_, bcRFF_TRANSIENT ),
 		new ReField( "FireRate_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
 		new ReField( "TimeToShoot_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
-		//new ReField( "Score_", &GaShipComponent::Score_, bcRFF_IMPORTER),
+		new ReField( "Score_", &GaShipComponent::Score_, bcRFF_IMPORTER),
 	};
 	
 	using namespace std::placeholders;
