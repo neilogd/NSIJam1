@@ -289,6 +289,19 @@
 			"@(android)"	: {
 				"format" : "ETC1"
 			}
+		},
+
+		////////////////////////////////////////////////////////////////////////
+		/// Particles
+		{
+			"type"			: "ScnTexture",
+			"name"			: "particles",
+
+			"source"		: "Content/Source/Textures/particles.png",
+			"format" : "DXT1",
+			"@(android)"	: {
+				"format" : "ETC1"
+			}
 		}
 	]
 }

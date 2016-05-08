@@ -4,6 +4,8 @@
 #include "System/Scene/Rendering/ScnModel.h"
 #include "System/Scene/Rendering/ScnViewComponent.h"
 
+#include "System/Scene/Rendering/ScnDebugRenderComponent.h"
+
 #include "System/Content/CsPackage.h"
 #include "System/Content/CsCore.h"
 
@@ -70,6 +72,7 @@ GaGameComponent::~GaGameComponent()
 // update
 void GaGameComponent::update( BcF32 Tick )
 {
+#if !PSY_PRODUCTION
 	if( ImGui::Begin( "Game Debug Menu" ) )
 	{
 		ImGui::Separator();
@@ -96,6 +99,10 @@ void GaGameComponent::update( BcF32 Tick )
 		ImGui::Separator();
 	}
 	ImGui::End();
+
+	MaAABB AABB( getConstraintMin(), getConstraintMax() );
+	ScnDebugRenderComponent::pImpl()->drawAABB( AABB, RsColour::RED, 0 );
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////
