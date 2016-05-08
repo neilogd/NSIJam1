@@ -93,6 +93,10 @@ void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
 				}
 				else 
 				{
+					ScnCore::pImpl()->spawnEntity(
+						ScnEntitySpawnParams(
+							"CameraEntity_0", "menu", "MenuEntity",
+							MaMat4d(), nullptr));
 					ScnCore::pImpl()->removeEntity(BulletComponent->getParentEntity()->getParentEntity());
 				}
 			}
