@@ -161,7 +161,7 @@ void GaGameComponent::onAttach( ScnEntityWeakRef Parent )
 	MaVec3d min = getConstraintMin();
 	MaMat4d mat;
 	float d = 0.9f;
-	float pos = (1.0f - d) * max.x() + d * min.y();
+	float pos = (1.0f - d) * max.z() + d * min.z();
 	mat.translation(MaVec3d(0.0f, 0.0f, pos));
 	ScnCore::pImpl()->spawnEntity(
 		ScnEntitySpawnParams(
