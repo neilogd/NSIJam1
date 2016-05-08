@@ -89,6 +89,13 @@ void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
 			float distance = dif.magnitude();
 			if (distance < 5.0f) 
 			{ 
+				if( BulletComponent->ExplodeSounds_.size() > 0 )
+				{
+					auto Emitter = BulletComponent->getComponentByType< ScnSoundEmitterComponent >();
+					BcAssert( Emitter );
+					Emitter->playOneShot( BulletComponent->ExplodeSounds_[ BcRandom::Global.randRange( 0, BulletComponent->ExplodeSounds_.size() - 1 ) ] );
+				}
+
 				if (!Ship->IsPlayer()){
 					ScnCore::pImpl()->removeEntity(Ship->getParentEntity());
 					BulletComponent->Ship_->addScore(100);
@@ -146,7 +153,7 @@ void GaBulletProcessor::initialise()
 // shutdown
 void GaBulletProcessor::shutdown()
 {
-
+	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -160,6 +167,7 @@ void GaBulletComponent::StaticRegisterClass()
 		new ReField( "Speed_", &GaBulletComponent::Speed_, bcRFF_IMPORTER ),
 		new ReField( "Direction_", &GaBulletComponent::Direction_, bcRFF_IMPORTER ),
 		new ReField( "EngineSound_", &GaBulletComponent::EngineSound_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY ),
+		new ReField( "ExplodeSounds_", &GaBulletComponent::ExplodeSounds_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY ),
 
 		new ReField( "Ship_", &GaBulletComponent::Ship_, bcRFF_TRANSIENT ),
 		
