@@ -97,7 +97,7 @@ public:
 	
 	void onAttach( ScnEntityWeakRef Parent ) override;
 	void onDetach( ScnEntityWeakRef Parent ) override;
-
+	BcBool IsPlayer();
 private:
 	friend class GaShipProcessor;
 

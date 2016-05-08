@@ -456,3 +456,8 @@ void GaShipComponent::onDetach( ScnEntityWeakRef Parent )
 
 }
 
+BcBool GaShipComponent::IsPlayer()
+{
+	return IsPlayer_;
+}
+
