@@ -11,7 +11,7 @@
 #include "GaShipComponent.h"
 
 #include "System/Scene/Sound/ScnSoundEmitter.h"
-
+#include "GaTitleComponent.h"
 //////////////////////////////////////////////////////////////////////////
 // Ctor
 GaBulletProcessor::GaBulletProcessor():
@@ -96,10 +96,7 @@ void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
 				}
 				else 
 				{
-					ScnCore::pImpl()->spawnEntity(
-						ScnEntitySpawnParams(
-							"CameraEntity_0", "menu", "MenuEntity",
-							MaMat4d(), nullptr));
+					GaTitleProcessor::pImpl()->showTitle();
 					ScnCore::pImpl()->removeEntity(BulletComponent->getParentEntity()->getParentEntity());
 				}
 			}

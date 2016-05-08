@@ -12,7 +12,8 @@
 				},
 				{
 					"$Class"				: "ScnCanvasComponent",
-					"NoofVertices_"			: 32768
+					"NoofVertices_"			: 32768,
+					"clear"					: true
 				},
 
 
