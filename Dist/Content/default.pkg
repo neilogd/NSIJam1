@@ -72,8 +72,21 @@
 					"debugdrawworld"		: false
 				},
 
+				{
+					"$Class"				: "ScnParticleSystemComponent",
+					"name"					: "Additive",
+					"noofparticles"			: 10000,
+					"islocalspace"			: false,
+					"material"				: "$(ScnMaterial:materials.particles_additive)"
+				},
 
-
+				{
+					"$Class"				: "ScnParticleSystemComponent",
+					"name"					: "Subtractive",
+					"noofparticles"			: 10000,
+					"islocalspace"			: false,
+					"material"				: "$(ScnMaterial:materials.particles_subtractive)"
+				},
 
 				{
 					"$Class"				: "GaGameComponent",

@@ -125,4 +125,7 @@ private:
 
 	ScnSoundRef EngineSound_;
 	std::vector< ScnSoundRef > LaunchSounds_;
+	
+	class ScnParticleSystemComponent* Additive_ = nullptr;
+	class ScnParticleSystemComponent* Subtractive_ = nullptr;
 };

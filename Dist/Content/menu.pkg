@@ -21,7 +21,7 @@
 					"texture"				: "$(ScnTexture:textures.heightmap)",
 					"material"				: "$(ScnMaterial:materials.heightmap)",
 					"heightmapuniformblock" : {
-						"HeightmapDimensions_" : 192.0,
+						"HeightmapDimensions_" : 224.0,
 						"HeightmapHeight_" : 155.0,
 						"HeightmapOffset_" : -60.0,
 						"HeightmapLayer0Height_" : 1.0,
