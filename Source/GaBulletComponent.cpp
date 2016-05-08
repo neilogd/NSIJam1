@@ -89,8 +89,15 @@ void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
 			float distance = dif.magnitude();
 			if (distance < 5.0f) 
 			{ 
-				ScnCore::pImpl()->removeEntity(Ship->getParentEntity());
-				ScnCore::pImpl()->removeEntity(BulletComponent->getParentEntity());
+				if (!Ship->IsPlayer()){
+					ScnCore::pImpl()->removeEntity(Ship->getParentEntity());
+					BulletComponent->Ship_->addScore(100);
+					ScnCore::pImpl()->removeEntity(BulletComponent->getParentEntity());
+				}
+				else 
+				{
+					ScnCore::pImpl()->removeEntity(BulletComponent->getParentEntity()->getParentEntity());
+				}
 			}
 		}/**/
 	}

@@ -66,6 +66,11 @@ MaVec3d GaGameComponent::getConstraintMax()
 	return MaVec3d(MaxX_, 0.0f, MaxZ_);
 }
 
+void GaGameComponent::SetScore(float Score)
+{
+	PlayerScore_ = Score;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Dtor
 //virtual
@@ -132,13 +137,14 @@ void GaGameComponent::update( BcF32 Tick )
 		.setBorderColour( RsColour::BLACK )
 		.setTextSettings( MaVec4d( 0.4f, 0.5f, 0.0f, 0.0f ) )
 		.setBorderSettings( MaVec4d( 1.0f, 0.0f, 0.0f, 0.0f ) );
-			
+	char buffer[256];
+	BcSPrintf(buffer, "Score: %d", PlayerScore_);
 	Font->drawText( 
 		Canvas,
 		DrawParams,
 		MaVec2d( -HalfWidth, -HalfHeight ),
 		MaVec2d( HalfWidth, HalfHeight ) * 2.0f,
-		L"The quick brown fox jumps over the lazy dog.\n" );
+		buffer );
 	
 	Canvas->popMatrix();
 }
@@ -151,10 +157,16 @@ void GaGameComponent::onAttach( ScnEntityWeakRef Parent )
 	Super::onAttach( Parent );
 	GaShipProcessor::pImpl()->registerGame(this);
 	GaBulletProcessor::pImpl()->registerGame(this);
+	MaVec3d max = getConstraintMax();
+	MaVec3d min = getConstraintMin();
+	MaMat4d mat;
+	float d = 0.9f;
+	float pos = (1.0f - d) * max.x() + d * min.y();
+	mat.translation(MaVec3d(0.0f, 0.0f, pos));
 	ScnCore::pImpl()->spawnEntity(
 		ScnEntitySpawnParams(
 			"PlayerShip_0", PlayerShipTemplates_[0],
-			MaMat4d(), getParentEntity()));
+			mat, getParentEntity()));
 
 }
 

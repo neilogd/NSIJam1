@@ -59,6 +59,7 @@ GaShipProcessor::~GaShipProcessor()
 void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
 {
 	float dt = SysKernel::pImpl()->getFrameTime();
+	float totalScore = 0.0f;
 	// Iterate over all the ships.
 	for (BcU32 Idx = 0; Idx < Players_.size(); ++Idx)
 	{
@@ -66,6 +67,7 @@ void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
 		int Set = ShipComponent->InstructionSet_;
 		int Step = ShipComponent->CurrentStep_;
 		ShipComponent->Score_ += dt;
+		totalScore += ShipComponent->Score_;
 		// Update AI Ships setting. This will currently eventually throw an error
 		ShipComponent->TimeOffset_ += dt;
 		while (ShipComponent->Instructions_.size() > ShipComponent->CurrentStep_) {
@@ -83,6 +85,8 @@ void GaShipProcessor::updatePlayers(const ScnComponentList& Components)
 		}
 		
 	}
+	if (GameComponent_)
+		GameComponent_->SetScore(totalScore);
 }
 //////////////////////////////////////////////////////////////////////////
 // updateShips
@@ -270,6 +274,10 @@ void GaShipProcessor::startWave()
 		Players_[i]->Instructions_.clear();
 		Players_[i]->TimeOffset_ = 0.0f;
 		Players_[i]->CurrentStep_ = 0;
+		if (( Players_[i]->CurrentInstructions_ & Instruction::SHOOT) != Instruction::NONE)
+		{
+			Players_[i]->Instructions_.push_back(WaveInstruction(0.0f, InstructionState::SWITCH_ON, Instruction::SHOOT));
+		}
 	}
 }
 
@@ -388,7 +396,7 @@ void GaShipComponent::StaticRegisterClass()
 		new ReField( "TimeToShoot_", &GaShipComponent::FireRate_, bcRFF_IMPORTER),
 		new ReField( "EngineSound_", &GaShipComponent::EngineSound_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY),
 		new ReField( "LaunchSounds_", &GaShipComponent::LaunchSounds_, bcRFF_IMPORTER | bcRFF_SHALLOW_COPY),
-		//new ReField( "Score_", &GaShipComponent::Score_, bcRFF_IMPORTER),
+		new ReField( "Score_", &GaShipComponent::Score_, bcRFF_IMPORTER),
 	};
 	
 	using namespace std::placeholders;
@@ -472,5 +480,15 @@ void GaShipComponent::onDetach( ScnEntityWeakRef Parent )
 	Event.IsPlayer_ = false;
 	OsCore::pImpl()->publish(gaEVT_SHIP_DESTROYED, Event);
 
+}
+
+void GaShipComponent::addScore(float Score)
+{
+	Score_ += Score;
+}
+
+BcBool GaShipComponent::IsPlayer()
+{
+	return IsPlayer_;
 }
 

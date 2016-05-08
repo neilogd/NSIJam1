@@ -26,9 +26,10 @@ public:
 
 	std::vector< ScnEntityRef > PlayerShipTemplates_;
 	std::vector< ScnEntityRef > EnemyShipTemplates_;
-
+	void SetScore(float Score);
 private:
 	float MaxX_;
 	float MaxZ_;
 	float MinZ_;
+	int PlayerScore_ = 0;
 };

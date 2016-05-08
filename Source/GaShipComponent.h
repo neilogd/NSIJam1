@@ -83,7 +83,7 @@ private:
 	std::vector<GaShipComponent*> Players_;
 	MaVec3d MinConstraint_;
 	MaVec3d MaxConstraint_;
-	GaGameComponent* GameComponent_;
+	GaGameComponent* GameComponent_ = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,8 @@ public:
 	
 	void onAttach( ScnEntityWeakRef Parent ) override;
 	void onDetach( ScnEntityWeakRef Parent ) override;
-
+	void addScore(float Score);
+	BcBool IsPlayer();
 private:
 	friend class GaShipProcessor;
 
@@ -114,7 +115,7 @@ private:
 	float TimeOffset_;
 	float FireRate_;
 	float TimeToShoot_;
-	float Score_;
+	float Score_ = 0.0f;
 
 	class ScnModelComponent* Model_ = nullptr;
 	std::vector< BcU32 > GunNodeIndices_;
