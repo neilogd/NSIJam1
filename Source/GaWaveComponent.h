@@ -38,5 +38,5 @@ private:
 	float NewWaveCountdown_;
 	BcBool CountdownWave_;
 	float WaveCountdownTime_;
-	
+	float getShipOffsetY(int Ship);
 };
