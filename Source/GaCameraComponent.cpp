@@ -16,6 +16,8 @@
 #include "System/Debug/DsImGui.h"
 #include "System/Os/OsCore.h"
 
+#include "System/Scene/Sound/ScnSoundEmitter.h"
+
 #include "Base/BcMath.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,10 +28,10 @@ void GaCameraComponent::StaticRegisterClass()
 {	
 	ReField* Fields[] = 
 	{
-		new ReField( "CameraTarget_",		&GaCameraComponent::CameraTarget_ ),
-		new ReField( "CameraRotation_",		&GaCameraComponent::CameraRotation_ ),
-		new ReField( "CameraDistance_",		&GaCameraComponent::CameraDistance_ ),
-		new ReField( "CameraZoom_",			&GaCameraComponent::CameraZoom_ ),
+		new ReField( "CameraTarget_",		&GaCameraComponent::CameraTarget_, bcRFF_IMPORTER ),
+		new ReField( "CameraRotation_",		&GaCameraComponent::CameraRotation_, bcRFF_IMPORTER ),
+		new ReField( "CameraDistance_",		&GaCameraComponent::CameraDistance_, bcRFF_IMPORTER ),
+		new ReField( "CameraZoom_",			&GaCameraComponent::CameraZoom_, bcRFF_IMPORTER ),
 		new ReField( "MoveFast_",			&GaCameraComponent::MoveFast_ ),
 		new ReField( "CameraState_",		&GaCameraComponent::CameraState_ ),
 		new ReField( "NextCameraState_",	&GaCameraComponent::NextCameraState_ ),
@@ -177,8 +179,11 @@ void GaCameraComponent::onAttach( ScnEntityWeakRef Parent )
 {
 	Super::onAttach( Parent );
 
+	getComponentByType< ScnSoundEmitterComponent >()->play( "sound", "Music", false );
+
 	using namespace std::placeholders;
 
+#if 0 
 	OsCore::pImpl()->subscribe( osEVT_INPUT_MOUSEDOWN, this, 
 		std::bind( &GaCameraComponent::onMouseDown, this, _1, _2 ) );
 
@@ -196,6 +201,7 @@ void GaCameraComponent::onAttach( ScnEntityWeakRef Parent )
 
 	OsCore::pImpl()->subscribe( osEVT_INPUT_KEYUP, this,
 		std::bind( &GaCameraComponent::onKeyUp, this, _1, _2 ) );
+#endif
 }
 
 

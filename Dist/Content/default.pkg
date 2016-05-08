@@ -6,15 +6,21 @@
 
 			"components" : [
 				{
-					"$Class"				: "GaCameraComponent",
-					
-					"renderers"	: [
-						"$(ScnEntity:deferred_renderer.Renderer)"
-					]
+					"$Class"				: "ScnSoundListenerComponent"
 				},
 
 				{
-					"$Class"				: "ScnSoundListenerComponent"
+					"$Class"				: "ScnSoundEmitterComponent",
+					"gain"					: 0.2
+				},
+
+				{
+					"$Class"				: "GaCameraComponent",
+					"cameradistance" : 108.0,
+					"camerarotation" : "1.105112, 3.141593, 0.000000",
+					"renderers"	: [
+						"$(ScnEntity:deferred_renderer.Renderer)"
+					]
 				},
 
 				{
@@ -93,8 +99,8 @@
 
 				{
 					"$Class"				: "GaGameComponent",
-					"maxX" 					: 64,
-					"minZ"					: -100,
+					"maxX" 					: 80,
+					"minZ"					: -50,
 					"maxZ"					: 100,
 					"playershiptemplates"			: [
 						"$(ScnEntity:ships.PlayerShip)"
