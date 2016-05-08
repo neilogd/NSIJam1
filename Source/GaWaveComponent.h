@@ -39,4 +39,5 @@ private:
 	BcBool CountdownWave_;
 	float WaveCountdownTime_;
 	float getShipOffsetY(int Ship);
+	float getRandomOffset(float R);
 };
