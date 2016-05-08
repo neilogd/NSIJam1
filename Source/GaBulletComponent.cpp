@@ -88,6 +88,7 @@ void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
 			{ 
 				if (!Ship->IsPlayer()){
 					ScnCore::pImpl()->removeEntity(Ship->getParentEntity());
+					BulletComponent->Ship_->addScore(100);
 					ScnCore::pImpl()->removeEntity(BulletComponent->getParentEntity());
 				}
 				else 
