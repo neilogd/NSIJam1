@@ -86,18 +86,10 @@ void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
 				continue;
 			MaVec3d shipPos = Ship->getParentEntity()->getWorldPosition();
 			MaVec3d dif = position - shipPos;
+			dif.y(0);
 			float distance = dif.magnitude();
 			if (distance < 5.0f) 
 			{ 
-				if( BulletComponent->ExplodeSounds_.size() > 0 )
-				{
-					auto Emitter = BulletComponent->getComponentByType< ScnSoundEmitterComponent >();
-					if( Emitter )
-					{
-						Emitter->playOneShot( BulletComponent->ExplodeSounds_[ BcRandom::Global.randRange( 0, BulletComponent->ExplodeSounds_.size() - 1 ) ] );
-					}
-				}
-
 				if (!Ship->IsPlayer()){
 					ScnCore::pImpl()->removeEntity(Ship->getParentEntity());
 					BulletComponent->Ship_->addScore(100);
@@ -105,6 +97,15 @@ void GaBulletProcessor::bulletCollisions(const ScnComponentList& Components)
 				}
 				else 
 				{
+					if (BulletComponent->ExplodeSounds_.size() > 0)
+					{
+						auto Emitter = BulletComponent->getComponentByType< ScnSoundEmitterComponent >();
+						if (Emitter)
+						{
+							Emitter->playOneShot(BulletComponent->ExplodeSounds_[BcRandom::Global.randRange(0, BulletComponent->ExplodeSounds_.size() - 1)]);
+						}
+					}
+
 					GaTitleProcessor::pImpl()->showTitle();
 					ScnCore::pImpl()->removeEntity(BulletComponent->getParentEntity()->getParentEntity());
 				}

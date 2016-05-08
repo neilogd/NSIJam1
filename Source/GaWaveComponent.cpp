@@ -87,6 +87,15 @@ float GaWaveComponent::getShipOffset(int Ship)
 	return min * (1.0f - d) + max * d;
 }
 
+float GaWaveComponent::getShipOffsetY(int Ship)
+{
+	float min = -0.3f;
+	float max = 0.3f;
+	float d = BcRandom::Global.randReal();
+
+	return min * (1.0f - d) + max * d;
+}
+
 void GaWaveComponent::update(float Tick)
 {
 	if (CountdownWave_)
@@ -130,7 +139,7 @@ void GaWaveComponent::StartWave()
 	{
 		int ship = BcRandom::Global.rand() % GameComponent_->EnemyShipTemplates_.size();
 		MaMat4d mat;
-		mat.translation(MaVec3d(getShipOffset(i), 0.0f, GameComponent_->getConstraintMax().z()));
+		mat.translation(MaVec3d(getShipOffset(i), getShipOffsetY(i), GameComponent_->getConstraintMax().z()));
 		ScnCore::pImpl()->spawnEntity(
 			ScnEntitySpawnParams(
 				"EnemyShip_0", GameComponent_->EnemyShipTemplates_[ship],
