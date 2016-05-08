@@ -400,7 +400,40 @@
 				"binormal" : "FLOAT32",
 				"tangent" : "FLOAT32"
 			}
+		},
+
+
+		/////////////////////////////////////////////////////////////
+		// Ships
+		{
+			"type"		: "ScnModel",
+			"name"		: "CloudPlane",
+			"source"	: "Content/Source/Models/plane.fbx",
+			"materials": [
+				{
+					"regex" : "(.*)", 
+					"material" : "$(ScnMaterial:materials.CloudPlane)"
+				}
+			],
+
+			"defaulttextures" : {
+				"aDiffuseTex" : "$(ScnTexture:textures.white)",
+				"aNormalTex" : "$(ScnTexture:textures.normal)",
+				"aSpecularTex" : "$(ScnTexture:textures.black)",
+				"aOpacityTex" : "$(ScnTexture:textures.white)",
+				"aReflectionTex" : "$(ScnTexture:cubemap_textures.cubemap)"
+			},
+
+			"vertexformat" : {
+				"position" : "FLOAT32",
+				"texcoord0" : "FLOAT32",
+				"normal" : "FLOAT32",
+				"binormal" : "FLOAT32",
+				"tangent" : "FLOAT32"
+			}
 		}
+
+
 
 	]
 }

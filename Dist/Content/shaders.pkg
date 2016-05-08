@@ -37,6 +37,12 @@
 		},
 
 		{
+			"type"			: "CsRedirector",
+			"name"			: "clouds",
+			"target"		: "$(ScnShader:shader_clouds.clouds)"
+		},
+
+		{
 			"type"			: "ScnShader",
 			"name"			: "skysphere",
 			"sources" 		: {

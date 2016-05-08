@@ -88,6 +88,8 @@ PSY_SAMPLER_2D( Layer1MatTex );
 PSY_SAMPLER_2D( Layer2MatTex );
 PSY_SAMPLER_2D( Layer3MatTex );
 
+PSY_SAMPLER_2D( NoiseTex );
+
 //////////////////////////////////////////////////////////////////////////
 // pixelAll
 void pixelAll( FRAMEBUFFER_INPUT )
@@ -104,13 +106,22 @@ void pixelAll( FRAMEBUFFER_INPUT )
 	float4 Layer3Mat = PSY_SAMPLE_2D( Layer3MatTex, IN( VsTexCoord0 ).xy * TexScale );
 	float4 Layer0Mat = PSY_SAMPLE_2D( Layer0MatTex, IN( VsTexCoord0 ).xy * TexScale * 4.0 );
 
+	float4 Noise = PSY_SAMPLE_2D( NoiseTex, IN( VsTexCoord0 ).xy * 4.0 ) - 0.5;
+	float NoiseMultiplier = 4.0;
+
 	float3 Normal = normalize( IN( VsNormal ) );
 
 	float Height = IN( VsHeight );
-	float Layer0Blend = clamp( Height, 0.0, HeightmapLayer0Height_ ) / HeightmapLayer0Height_;
-	float Layer1Blend = clamp( Height, HeightmapLayer1Height_, HeightmapLayer1Height_ + 1.0 ) - HeightmapLayer1Height_;
-	float Layer2Blend = clamp( Height, HeightmapLayer2Height_, HeightmapLayer2Height_ + 1.0 ) - HeightmapLayer2Height_;
-	float Layer3Blend = clamp( Height, HeightmapLayer3Height_, HeightmapLayer3Height_ + 1.0 ) - HeightmapLayer3Height_;
+
+	float Layer0Height = HeightmapLayer0Height_ + Noise.x * NoiseMultiplier;
+	float Layer1Height = HeightmapLayer1Height_ + Noise.x * NoiseMultiplier;
+	float Layer2Height = HeightmapLayer2Height_ + Noise.x * NoiseMultiplier;
+	float Layer3Height = HeightmapLayer3Height_ + Noise.x * NoiseMultiplier;
+
+	float Layer0Blend = clamp( Height, 0.0, Layer0Height ) / Layer0Height;
+	float Layer1Blend = clamp( Height, Layer1Height, Layer1Height + 1.0 ) - Layer1Height;
+	float Layer2Blend = clamp( Height, Layer2Height, Layer2Height + 1.0 ) - Layer2Height;
+	float Layer3Blend = clamp( Height, Layer3Height, Layer3Height + 1.0 ) - Layer3Height;
 
 	float3 Diffuse = float3( 0.0, 0.0, 0.0 );
 	Diffuse = lerp( Diffuse, Layer0.xyz, Layer0Blend );

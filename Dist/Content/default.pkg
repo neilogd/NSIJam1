@@ -25,6 +25,15 @@
 				},
 
 				{
+					"$Class"				: "ScnModelComponent",
+					"model"					: "$(ScnModel:models.CloudPlane)",
+					"islit"					: false,
+					"scale"					: "1.0, 1.0, 1.0",
+					"layer"					: 1,
+					"passes"				: "TRANSPARENT"
+				},
+
+				{
 					"$Class"				: "GaHeightmapComponent",
 					"texture"				: "$(ScnTexture:textures.heightmap)",
 					"material"				: "$(ScnMaterial:materials.heightmap)",

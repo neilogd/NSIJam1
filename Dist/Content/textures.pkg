@@ -246,7 +246,49 @@
 			"@(html5)" : {
 				"format" : "DXT1"
 			}
-		}
+		},
 
+		////////////////////////////////////////////////////////////////////////
+		/// Clouds
+		{
+			"type"			: "ScnTexture",
+			"name"			: "clouds0",
+
+			"source"		: "Content/Source/Textures/clouds0.png",
+			"format" : "DXT1",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
+		},
+
+		{
+			"type"			: "ScnTexture",
+			"name"			: "clouds1",
+
+			"source"		: "Content/Source/Textures/clouds1.png",
+			"format" : "DXT1",
+			"@(android)"	: {
+				"format" : "ETC1"
+			},
+			"@(html5)" : {
+				"format" : "DXT1"
+			}
+		},
+
+		////////////////////////////////////////////////////////////////////////
+		/// Noise
+		{
+			"type"			: "ScnTexture",
+			"name"			: "noise",
+
+			"source"		: "Content/Source/Textures/noise.png",
+			"format" : "R8G8B8A8",
+			"@(android)"	: {
+				"format" : "ETC1"
+			}
+		}
 	]
 }
