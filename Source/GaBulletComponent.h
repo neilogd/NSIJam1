@@ -6,6 +6,8 @@
 #include "System/Scene/ScnComponent.h"
 #include "System/Scene/ScnComponentProcessor.h"
 
+#include "System/Scene/Sound/ScnSound.h"
+
 #include "GaEvents.h"
 
 #include <vector>
@@ -64,4 +66,5 @@ private:
 	MaVec3d Direction_;
 	class ScnModelComponent* Model_ = nullptr;
 	GaShipComponent* Ship_ = nullptr;
+	ScnSoundRef EngineSound_;
 };

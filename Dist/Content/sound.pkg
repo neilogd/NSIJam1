@@ -1,0 +1,78 @@
+{
+	"resources" : [
+		{
+			"name"		:		"Music",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/music.ogg",
+			"isstream"	:		true,
+			"isloop"	:		true
+		},
+
+		{
+			"name"		:		"Explode0",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/explode0.ogg",
+			"isstream"	:		false
+		},
+
+		{
+			"name"		:		"Explode1",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/explode1.ogg",
+			"isstream"	:		false
+		},
+
+		{
+			"name"		:		"Explode2",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/explode2.ogg",
+			"isstream"	:		false
+		},
+
+		{
+			"name"		:		"Engine0",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/engine0.ogg",
+			"isstream"	:		false,
+			"isloop"	:		true
+		},
+
+		{
+			"name"		:		"Engine1",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/engine1.ogg",
+			"isstream"	:		false,
+			"isloop"	:		true
+		},
+
+		{
+			"name"		:		"Missile",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/missile.ogg",
+			"isstream"	:		false,
+			"isloop"	:		true
+		},
+
+		{
+			"name"		:		"Launch0",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/launch0.ogg",
+			"isstream"	:		false
+		},
+
+		{
+			"name"		:		"Launch1",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/launch1.ogg",
+			"isstream"	:		false
+		},
+
+		{
+			"name"		:		"Launch2",
+			"type"		:		"ScnSound",
+			"source"	:		"Content/Source/Sound/launch2.ogg",
+			"isstream"	:		false
+		}
+	]
+}
+ 
