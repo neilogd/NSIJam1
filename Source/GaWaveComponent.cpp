@@ -70,6 +70,8 @@ void GaWaveComponent::onAttach( ScnEntityWeakRef Parent )
 void GaWaveComponent::onDetach( ScnEntityWeakRef Parent )
 {
 	Super::onDetach( Parent );
+
+	OsCore::pImpl()->unsubscribeAll( this );
 }
 
 int GaWaveComponent::getEnemySpawnCount()

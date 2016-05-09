@@ -59,7 +59,6 @@ void GaBulletProcessor::updateBullets(const ScnComponentList& Components)
 		if ((newPos.x() < MinConstraint_.x()) || (newPos.x() > MaxConstraint_.x()) ||
 			(newPos.z() < MinConstraint_.z()) || (newPos.z() > MaxConstraint_.z()))
 		{
-			//ShipComponent->ParentEntity_->destroy();
 			ScnCore::pImpl()->removeEntity(ShipComponent->getParentEntity());
 		}
 	}
