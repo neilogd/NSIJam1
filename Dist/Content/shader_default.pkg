@@ -4,8 +4,7 @@
 			"type"			: "ScnShader",
 			"name"			: "default",
 			"sources" 		: {
-				"D3D11_4_0" : "Content/Engine/default.psf",
-				"GLSL_430" : "Content/Engine/default.psf",
+				"D3D11_5_0" : "Content/Engine/default.psf",
 				"GLSL_330" : "Content/Engine/default.psf",
 				"GLSL_ES_100" : "Content/Engine/default.psf"
 			},

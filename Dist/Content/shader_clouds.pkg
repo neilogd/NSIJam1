@@ -4,6 +4,7 @@
 			"type"			: "ScnShader",
 			"name"			: "clouds",
 			"sources" 		: {
+				"D3D11_5_0" : "Content/Engine/clouds.psf",
 				"GLSL_330" : "Content/Engine/clouds.psf",
 				"GLSL_ES_100" : "Content/Engine/clouds.psf"
 			},

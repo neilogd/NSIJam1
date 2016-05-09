@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 // Features.
-#define SOFT_CLIPPING
+//#define SOFT_CLIPPING
 
 //////////////////////////////////////////////////////////////////////////
 // Vertex shader
@@ -24,7 +24,6 @@ VS_OUT_BEGIN
 	DECLARE_OUT( float3, VsNormal, NORMAL );
 	DECLARE_OUT( float2, VsTexCoord0, TEXCOORD0 );
 	DECLARE_OUT( float3, VsWorldPosition, TEXCOORD1 );
-	DECLARE_OUT( float3, VsMaterial0, TEXCOORD2 );
 VS_OUT_END
 
 VS_MAIN( vertexMain )
@@ -56,8 +55,6 @@ PS_IN_BEGIN
 	DECLARE_IN( float3, VsNormal, NORMAL );
 	DECLARE_IN( float2, VsTexCoord0, TEXCOORD0 );
 	DECLARE_IN( float3, VsWorldPosition, TEXCOORD1 );
-	DECLARE_IN( float3, VsMaterial0, TEXCOORD2 );
-	DECLARE_IN( float3, VsMaterial1, TEXCOORD3 );
 PS_IN_END
 #include <PsybrusOutput.psh>
 
@@ -104,7 +101,7 @@ void pixelAll( FRAMEBUFFER_INPUT )
 #  endif
 #endif
 
-	writeFrag( FRAMEBUFFER_INTERNAL, Diffuse * IN( VsColour0 ), IN( Normal ).xyz, float3( 0.0, 0.0, 0.0 ) );
+	writeFrag( FRAMEBUFFER_INTERNAL, Diffuse * IN( VsColour0 ), Normal.xyz, float3( 0.0, 0.0, 0.0 ) );
 }
 
 //////////////////////////////////////////////////////////////////////////

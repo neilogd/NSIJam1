@@ -32,7 +32,7 @@ VS_MAIN( vertexMain )
 
 	float4 InPosition = float4( InFlatPosition.x, 0.0, InFlatPosition.y, 1.0 );
 
-	float Height = PSY_SAMPLE_2D( HeightTex, InTexCoord.xy ).x;
+	float Height = PSY_SAMPLE_2D_LOD( HeightTex, InTexCoord.xy, 0.0 ).x;
 	InPosition.y = Height * HeightmapHeight_ + HeightmapOffset_;
 	OUT( VsHeight ) = Height * HeightmapHeight_;
 
@@ -43,10 +43,10 @@ VS_MAIN( vertexMain )
 	float4 InNormal = float4( 0.0, 1.0, 0.0, 0.0 );
 	
 	float Scale = HeightmapHeight_ / HeightmapDimensions_;
-	float HeightL = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2( -HeightmapUVScale_.x, 0.0 ) ).x;
-	float HeightR = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2(  HeightmapUVScale_.x, 0.0 ) ).x;
-	float HeightB = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2( 0.0, -HeightmapUVScale_.x ) ).x;
-	float HeightT = PSY_SAMPLE_2D( HeightTex, InTexCoord + float2( 0.0,  HeightmapUVScale_.x ) ).x;
+	float HeightL = PSY_SAMPLE_2D_LOD( HeightTex, InTexCoord + float2( -HeightmapUVScale_.x, 0.0 ), 0 ).x;
+	float HeightR = PSY_SAMPLE_2D_LOD( HeightTex, InTexCoord + float2(  HeightmapUVScale_.x, 0.0 ), 0 ).x;
+	float HeightB = PSY_SAMPLE_2D_LOD( HeightTex, InTexCoord + float2( 0.0, -HeightmapUVScale_.x ), 0 ).x;
+	float HeightT = PSY_SAMPLE_2D_LOD( HeightTex, InTexCoord + float2( 0.0,  HeightmapUVScale_.x ), 0 ).x;
 
 	InNormal.x = ( ( Height - HeightR ) + ( HeightL - Height ) ) * Scale;
 	InNormal.y = HeightmapNormalTweak_;
@@ -56,7 +56,7 @@ VS_MAIN( vertexMain )
 	PSY_MAKE_WORLD_SPACE_NORMAL( Normal, InNormal );
 	OUT( VsNormal ) = Normal.xyz;
 
-	OUT( VsTexCoord0 ) = IN( InTexCoord ).xy;
+	OUT( VsTexCoord0 ) = InTexCoord.xy;
 
 	VS_EXIT;
 }

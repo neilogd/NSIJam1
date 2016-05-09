@@ -46,6 +46,7 @@
 			"type"			: "ScnShader",
 			"name"			: "skysphere",
 			"sources" 		: {
+				"D3D11_5_0" : "Content/Engine/skysphere.psf",
 				"GLSL_330" : "Content/Engine/skysphere.psf",
 				"GLSL_ES_100" : "Content/Engine/skysphere.psf"
 			},
@@ -85,6 +86,7 @@
 			"type"			: "ScnShader",
 			"name"			: "fullscreen",
 			"sources" 		: {
+				"D3D11_5_0" : "Content/Engine/fullscreen.psf",
 				"GLSL_330" : "Content/Engine/fullscreen.psf",
 				"GLSL_ES_100" : "Content/Engine/fullscreen.psf"
 			},
